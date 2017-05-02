@@ -23,5 +23,7 @@ namespace JoyOI.UserCenter.Models
         public virtual User User { get; set; }
 
         public string Hint { get; set; }
+
+        public DateTime Time { get; set; }
     }
 }

@@ -13,6 +13,13 @@ namespace JoyOI.UserCenter.Models
         GravatarPolling
     }
 
+    public enum Sex
+    {
+        Unknown,
+        Male,
+        Female
+    }
+
     public class User : IdentityUser<Guid>
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
@@ -33,5 +40,9 @@ namespace JoyOI.UserCenter.Models
 
         [MaxLength(64)]
         public string Address { get; set; }
+
+        public JsonObject<List<Guid>> AuthorizedApplications { get; set; } = "[]";
+
+        public Sex Sex { get; set; }
     }
 }
