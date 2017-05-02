@@ -15,6 +15,8 @@ namespace JoyOI.UserCenter.Models
 
         public DbSet<OpenId> OpenIds { get; set; }
 
+        public DbSet<RelationShip> RelationShips { get; set; }
+
         public DbSet<TransferMoneyLog> TransferMoneyLogs { get; set; }
 
         public DbSet<UserLog> UserLogs { get; set; }
@@ -44,6 +46,12 @@ namespace JoyOI.UserCenter.Models
                 e.HasIndex(x => x.AccessToken);
                 e.HasIndex(x => x.ExpireTime);
                 e.HasIndex(x => x.RequestToken);
+            });
+
+            builder.Entity<RelationShip>(e =>
+            {
+                e.HasKey(x => new { x.FocuserId, x.FocuseeId });
+                e.HasIndex(x => x.Time);
             });
 
             builder.Entity<TransferMoneyLog>(e => 
