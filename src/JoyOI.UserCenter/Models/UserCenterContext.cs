@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace JoyOI.UserCenter.Models
 {
-    public class UserCenterContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+    public class UserCenterContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, IBlobStorageDbContext
     {
         public DbSet<Application> Applications { get; set; }
 
         public DbSet<ExtensionLog> ExtensionLogs { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
 
         public DbSet<OpenId> OpenIds { get; set; }
 
@@ -19,13 +19,24 @@ namespace JoyOI.UserCenter.Models
 
         public DbSet<UserLog> UserLogs { get; set; }
 
+        public DbSet<Blob> Blobs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            builder.SetupBlobStorage();
+
             builder.Entity<ExtensionLog>(e => 
             {
                 e.HasIndex(x => x.Time);
+            });
+
+            builder.Entity<Message>(e =>
+            {
+                e.HasIndex(x => x.ReceiveTime);
+                e.HasIndex(x => x.SendTime);
+                e.HasIndex(x => x.IsRead);
             });
 
             builder.Entity<OpenId>(e =>
