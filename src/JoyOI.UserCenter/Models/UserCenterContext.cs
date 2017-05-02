@@ -13,6 +13,8 @@ namespace JoyOI.UserCenter.Models
 
         public DbSet<ExtensionLog> ExtensionLogs { get; set; }
 
+        public DbSet<OpenId> OpenIds { get; set; }
+
         public DbSet<TransferMoneyLog> TransferMoneyLogs { get; set; }
 
         public DbSet<UserLog> UserLogs { get; set; }
@@ -24,6 +26,13 @@ namespace JoyOI.UserCenter.Models
             builder.Entity<ExtensionLog>(e => 
             {
                 e.HasIndex(x => x.Time);
+            });
+
+            builder.Entity<OpenId>(e =>
+            {
+                e.HasIndex(x => x.AccessToken);
+                e.HasIndex(x => x.ExpireTime);
+                e.HasIndex(x => x.RequestToken);
             });
 
             builder.Entity<TransferMoneyLog>(e => 
