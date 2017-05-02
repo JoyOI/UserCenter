@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9C499D42-A948-4950-BE6E-267CB5525B8C}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
+		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JoyOI.UserCenter", "src\JoyOI.UserCenter\JoyOI.UserCenter.xproj", "{67B7FF74-82B5-452E-8B8E-48ED13E99E2E}"
