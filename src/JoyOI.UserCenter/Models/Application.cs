@@ -8,10 +8,14 @@ namespace JoyOI.UserCenter.Models
     {
         public Guid Id { get; set; }
 
+        [MaxLength(64)]
         public string Name { get; set; }
 
         [MaxLength(64)]
         public string Secret { get; set; }
+
+        [MaxLength(128)]
+        public string CallBackUrl { get; set; }
 
         public JsonObject<List<string>> ExtensionPermissions { get; set; } = "[]";
     }
