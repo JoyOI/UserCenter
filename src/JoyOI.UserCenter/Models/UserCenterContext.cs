@@ -45,7 +45,7 @@ namespace JoyOI.UserCenter.Models
             {
                 e.HasIndex(x => x.AccessToken);
                 e.HasIndex(x => x.ExpireTime);
-                e.HasIndex(x => x.RequestToken);
+                e.HasIndex(x => x.Code);
             });
 
             builder.Entity<RelationShip>(e =>

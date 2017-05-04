@@ -12,7 +12,7 @@ namespace JoyOI.UserCenter.Models
         public string AccessToken { get; set; }
 
         [MaxLength(64)]
-        public string RequestToken { get; set; }
+        public string Code { get; set; }
 
         [ForeignKey("User")]
         public Guid UserId { get; set; }
