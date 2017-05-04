@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.AspNetCore.Localization;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using JoyOI.UserCenter.Models;
 
@@ -25,6 +28,7 @@ namespace JoyOI.UserCenter
             services.AddConfiguration(out Config);
 
             var redis = ConnectionMultiplexer.Connect(Config["Data:Redis"]);
+
             services.AddDataProtection()
                 .PersistKeysToRedis(redis, "DATA_PROTECTION_KEYS_");
 
@@ -70,18 +74,26 @@ namespace JoyOI.UserCenter
             })
                 .AddEntityFrameworkStores<UserCenterContext, Guid>()
                 .AddDefaultTokenProviders();
+
+            services.AddPomeloLocalization(x =>
+            {
+                var cultures = JsonConvert.DeserializeObject<List<dynamic>>(File.ReadAllText(Path.Combine("Localization", "cultures.json")));
+                foreach (dynamic c in cultures)
+                    x.AddCulture(c.Cultures.ToObject<string[]>(), new JsonLocalizedStringStore(Path.Combine("Localization", c.Source.ToString())));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
+            app.UseFrontendLocalizer();
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
             app.UseSignalR();
             app.UseBlobStorage("/js/jquery.pomelo.fileupload.js");
             app.UseIdentity();
-
-            // TODO: Map to mvc
+            app.UseWhen(x => x.Request.Host.ToString() == Config["Domain:Api"], x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));
+            app.UseWhen(x => x.Request.Host.ToString() != Config["Domain:Api"], x => x.UseMvcWithDefaultRoute());
         }
     }
 }
