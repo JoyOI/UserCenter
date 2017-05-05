@@ -15,6 +15,7 @@ namespace JoyOI.UserCenter.Controllers
     {
         private static Random _random = new Random();
         private static string _randomStringDictionary = "qwertyuiopasdfghjklzxcvbnm1234567890";
+
         private static string _generateString(int length)
         {
             var sb = new StringBuilder();
@@ -24,6 +25,25 @@ namespace JoyOI.UserCenter.Controllers
             }
             return sb.ToString();
         }
+
+        private static string _generateCallBackUrl(string url, string code)
+        {
+            string baseUrl;
+            QueryString queryString;
+            var queryStringStartPosition = url.LastIndexOf('?');
+
+            if (queryStringStartPosition >= 0)
+            {
+                baseUrl = url.Substring(0, queryStringStartPosition);
+                queryString = new QueryString(url.Substring(queryStringStartPosition));
+                queryString = queryString.Add("code", code);
+                return baseUrl + queryString.ToString();
+            }
+            else
+            {
+                return url + "?code=" + code;
+            }
+        } 
 
         public Application Application
         {
@@ -123,8 +143,7 @@ namespace JoyOI.UserCenter.Controllers
                     }
                 }
                 DB.SaveChanges();
-                // TODO: generate redirect url
-                return Redirect(CallBackUrl);
+                return Redirect(_generateCallBackUrl(CallBackUrl, openId.Code));
             }
         }
     }
