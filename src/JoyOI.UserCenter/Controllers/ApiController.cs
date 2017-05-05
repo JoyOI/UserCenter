@@ -28,14 +28,12 @@ namespace JoyOI.UserCenter.Controllers
 
         private static string _generateCallBackUrl(string url, string code)
         {
-            string baseUrl;
-            QueryString queryString;
             var queryStringStartPosition = url.LastIndexOf('?');
 
             if (queryStringStartPosition >= 0)
             {
-                baseUrl = url.Substring(0, queryStringStartPosition);
-                queryString = new QueryString(url.Substring(queryStringStartPosition));
+                var baseUrl = url.Substring(0, queryStringStartPosition);
+                var queryString = new QueryString(url.Substring(queryStringStartPosition));
                 queryString = queryString.Add("code", code);
                 return baseUrl + queryString.ToString();
             }
@@ -73,7 +71,7 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 404;
                 });
             }
-            else if (CallBackUrl.StartsWith(Application.CallBackUrl))
+            else if (!CallBackUrl.StartsWith(Application.CallBackUrl))
             {
                 return Prompt(x => 
                 {
@@ -97,7 +95,7 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 404;
                 });
             }
-            else if (CallBackUrl.StartsWith(Application.CallBackUrl))
+            else if (!CallBackUrl.StartsWith(Application.CallBackUrl))
             {
                 return Prompt(x =>
                 {

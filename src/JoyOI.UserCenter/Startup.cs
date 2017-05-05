@@ -86,14 +86,16 @@ namespace JoyOI.UserCenter
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
+            app.UseStaticFiles();
             app.UseFrontendLocalizer();
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
             app.UseSignalR();
             app.UseBlobStorage("/js/jquery.pomelo.fileupload.js");
             app.UseIdentity();
-            app.UseWhen(x => x.Request.Host.ToString() == Config["Domain:Api"], x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));
-            app.UseWhen(x => x.Request.Host.ToString() != Config["Domain:Api"], x => x.UseMvcWithDefaultRoute());
+            app.MapWhen(x => x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));
+            app.MapWhen(x => !x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvcWithDefaultRoute());
+            app.ApplicationServices.GetRequiredService<UserCenterContext>().Initialize();
         }
     }
 }

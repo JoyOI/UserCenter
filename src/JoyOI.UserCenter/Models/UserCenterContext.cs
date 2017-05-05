@@ -7,6 +7,10 @@ namespace JoyOI.UserCenter.Models
 {
     public class UserCenterContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, IBlobStorageDbContext
     {
+        public UserCenterContext(DbContextOptions opt) : base(opt)
+        {
+        }
+
         public DbSet<Application> Applications { get; set; }
 
         public DbSet<ExtensionLog> ExtensionLogs { get; set; }
@@ -22,6 +26,21 @@ namespace JoyOI.UserCenter.Models
         public DbSet<UserLog> UserLogs { get; set; }
 
         public DbSet<Blob> Blobs { get; set; }
+
+        public void Initialize()
+        {
+            if (Database.EnsureCreated())
+            {
+                Applications.Add(new Application
+                {
+                    Id = Guid.Parse("b453aa01-680e-49ca-a332-9d3ae296af9f"),
+                    CallBackUrl = "http://callback",
+                    Name = "Empty",
+                    Secret = "0"
+                });
+                SaveChanges();
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -1,0 +1,66 @@
+﻿body {
+	background-image: url(../images/bg-sign-in.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
+}
+
+.sign-in-box {
+    margin:0 auto;
+    margin-top: 140px;
+    width: 770px; 
+    background: rgba(0,0,0,0.8);
+    box-shadow: 0 3px 10px rgba(0,0,0,.3);
+    color: #ddd;
+    padding: 15px;
+    height: 360px;
+}
+
+.sign-in-float-box {
+    margin-top: -60px;
+    margin-bottom: -50px;
+    box-shadow: 0 0 30px rgba(0,0,0,.6);
+    position: relative;
+    width: 310px;
+    background: rgba(255,255,255,0.99);
+    height: 460px;
+    float: right;
+    margin-right: 10px;
+    color: #555;
+    padding: 15px;
+}
+
+.sign-in-logo-outer {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.sign-in-copyright {
+    font-size: 12px;
+    padding: 15px 0;
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: 0px;
+}
+
+.sign-in-textbox {
+    padding: 6px 0;
+    outline: 0;
+    border: none;
+    border-bottom: 2px solid #94934b;
+    width: 100%;
+}
+
+.sign-in-textbox-outer {
+    padding: 10px 50px 5px 50px;
+}
+
+.sign-in-textbox-label {
+    font-size: 14px;
+    color: #94934b;
+    padding-bottom: 5px;
+}
