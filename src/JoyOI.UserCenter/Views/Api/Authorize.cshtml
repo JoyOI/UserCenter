@@ -6,31 +6,31 @@
     <script src="~/scripts/sign-in.js"></script>
 </head>
 <body>
-    <div class="sign-in-box">
+    <form asp-action="Authorize" asp-controller="Api" asp-route-id="@ViewContext.RouteData.Values["id"]" class="sign-in-box">
         <div class="sign-in-float-box">
             <div class="sign-in-logo-outer">
                 <img src="~/images/logo-bk.png" style="height: 100px;" />
             </div>
             <div class="sign-in-textbox-outer">
-                <div class="sign-in-textbox-label">用户名 / 电子邮箱</div>
+                <div class="sign-in-textbox-label">@SR["Username or email"]</div>
                 <input type="text" class="sign-in-textbox" />
             </div>
             <div class="sign-in-textbox-outer">
-                <div class="sign-in-textbox-label">密码</div>
+                <div class="sign-in-textbox-label">@SR["Password"]</div>
                 <input type="password" class="sign-in-textbox" />
             </div>
             <div class="sign-in-textbox-outer">
                 <label class="sign-in-textbox-label">
                     <input type="checkbox" class="sign-in-checkbox" />
-                    <span>记住我</span>
+                    <span>@SR["Remember me"]</span>
                 </label>
             </div>
             <div class="sign-in-textbox-outer">
-                <input type="submit" value="登录" class="sign-in-button" />
+                <input type="submit" value="@SR["Sign In"]" class="sign-in-button" />
             </div>
             <div class="sign-in-textbox-outer sign-in-links">
-                <a href="#">新用户注册</a>
-                <a href="#">忘记密码</a>
+                <a href="#">@SR["Register"]</a>
+                <a href="#">@SR["Forgot"]</a>
             </div>
         </div>
         <div class="sign-in-content">
@@ -44,7 +44,8 @@
                 <li>在外部（第三方）应用中进行私信操作</li>
             </ul>
         </div>
-    </div>
+        <input type="hidden" name="callbackurl" value="@Context.Request.Query["callbackurl"]" />
+    </form>
     <div class="sign-in-copyright">Copyright © @DateTime.Now.Year 北京清北学堂教育科技有限公司</div>
 </body>
 </html>

@@ -1,0 +1,33 @@
+﻿@model Prompt
+<html>
+<head>
+    <link href="~/styles/prompt.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="logo">
+        <img src="~/images/logo.png" />
+    </div>
+    <div class="content">
+        <div class="trapezoid">
+            <div class="trapezoid-main">
+                <div class="trapezoid-inner">@Model.Title</div>
+            </div>
+        </div>
+        <div class="detail-outer">
+            <div class="detail-content">
+                @Model.Details
+            </div>
+            <div class="buttons">
+                @if (!Model.HideBack)
+                {
+                    <a href="javascript:history.go(-1);" class="button">@SR["Back"]</a>
+                }
+                @if (!string.IsNullOrEmpty(Model.RedirectText))
+                {
+                    <a href="javascript:history.go(-1);" class="button purple">@Model.RedirectText</a>
+                }
+            </div>
+        </div>
+    </div>
+</body>
+</html>

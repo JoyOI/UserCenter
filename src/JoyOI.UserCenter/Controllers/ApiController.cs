@@ -104,6 +104,15 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
+            else if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Request denied"];
+                    x.Details = SR["Username or password cannot be null."];
+                    x.StatusCode = 400;
+                });
+            }
 
             var result = await SignInManager.PasswordSignInAsync(Username, Password, true, false);
             if (!result.Succeeded)
