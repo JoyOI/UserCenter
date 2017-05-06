@@ -8,17 +8,16 @@
 .sign-in-box {
     margin:0 auto;
     margin-top: 140px;
-    width: 770px; 
+    width: 750px; 
     background: rgba(0,0,0,0.8);
     box-shadow: 0 3px 10px rgba(0,0,0,.3);
     color: #ddd;
-    padding: 15px;
-    height: 360px;
+    padding: 25px;
+    height: 340px;
 }
 
 .sign-in-float-box {
-    margin-top: -55px;
-    margin-bottom: -50px;
+    margin-top: -65px;
     box-shadow: 0 0 30px rgba(0,0,0,.6);
     position: relative;
     width: 310px;
@@ -51,9 +50,18 @@
     padding: 6px 0;
     outline: 0;
     border: none;
-    border-bottom: 2px solid #94934b;
     width: 100%;
     color: #555;
+    border-bottom: 2px solid #bbb;
+    transition: border 0.2s linear;
+}
+
+.sign-in-textbox:hover {
+    border-bottom: 2px solid #9f9f9f;
+}
+
+.sign-in-textbox:focus {
+    border-bottom: 2px solid #94934b;
 }
 
 .sign-in-textbox-outer {
@@ -62,8 +70,13 @@
 
 .sign-in-textbox-label {
     font-size: 14px;
-    color: #94934b;
+    color: #555;
     padding-bottom: 5px;
+    transition: color 0.2s linear;
+}
+
+.sign-in-textbox-label.active {
+    color: #94934b;
 }
 
 .sign-in-checkbox {
@@ -129,4 +142,30 @@
     box-shadow: 0 0 10px rgb(239,165,54);
     background: rgb(247, 182, 85);
     border: 1px solid rgb(247, 182, 85);
+}
+
+.sign-in-links a {
+    color: #999;
+    text-decoration: none;
+}
+
+.sign-in-links a:last-child {
+    float: right;
+}
+
+.sign-in-links a:hover {
+    text-decoration: underline;
+}
+
+.sign-in-content {
+    width: 365px;
+}
+
+.sign-in-content ul {
+    line-height: 38px;
+    padding-left: 15px;
+}
+
+.sign-in-content-title {
+    font-weight: bold;
 }

@@ -1,16 +1,18 @@
-﻿<html>
+﻿@model Application
+<html>
 <head>
     <link href="~/styles/sign-in-style.css" rel="stylesheet" />
+    <script src="~/scripts/jquery-3.2.1.min.js"></script>
+    <script src="~/scripts/sign-in.js"></script>
 </head>
 <body>
-    @*<img src="~/images/logo.png" />*@
     <div class="sign-in-box">
         <div class="sign-in-float-box">
             <div class="sign-in-logo-outer">
                 <img src="~/images/logo-bk.png" style="height: 100px;" />
             </div>
             <div class="sign-in-textbox-outer">
-                <div class="sign-in-textbox-label">用户名</div>
+                <div class="sign-in-textbox-label">用户名 / 电子邮箱</div>
                 <input type="text" class="sign-in-textbox" />
             </div>
             <div class="sign-in-textbox-outer">
@@ -26,8 +28,22 @@
             <div class="sign-in-textbox-outer">
                 <input type="submit" value="登录" class="sign-in-button" />
             </div>
+            <div class="sign-in-textbox-outer sign-in-links">
+                <a href="#">新用户注册</a>
+                <a href="#">忘记密码</a>
+            </div>
         </div>
-        111
+        <div class="sign-in-content">
+            <div class="sign-in-content-title">@SR["{0} is requesting your authorization", Model.Name]</div>
+            <ul>
+                <li>获取您的头像和昵称</li>
+                <li>更新或设置您的头像及昵称</li>
+                <li>操作您的跨应用虚拟货币</li>
+                <li>获取您的电子邮箱地址及手机号码</li>
+                <li>给您发送邮件或短信</li>
+                <li>在外部（第三方）应用中进行私信操作</li>
+            </ul>
+        </div>
     </div>
     <div class="sign-in-copyright">Copyright © @DateTime.Now.Year 北京清北学堂教育科技有限公司</div>
 </body>

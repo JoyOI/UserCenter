@@ -80,7 +80,7 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
-            return View();
+            return View(Application);
         }
 
         [HttpPost]
