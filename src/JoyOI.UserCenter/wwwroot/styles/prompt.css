@@ -60,11 +60,16 @@
 
 .detail-content {
     background: rgba(0,0,0,0.8);
-    box-shadow: 0 3px 10px rgba(0,0,0,.3);
     color: #ddd;
     padding: 25px;
     margin-bottom: 25px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.0);
+    transition: box-shadow 0.2s linear;
 }
+
+    .detail-content:hover {
+        box-shadow: 0 3px 10px rgba(0,0,0,.3);
+    }
 
 .button {
     text-decoration: none;
