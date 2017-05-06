@@ -17,15 +17,15 @@
 }
 
 .sign-in-float-box {
-    margin-top: -60px;
+    margin-top: -55px;
     margin-bottom: -50px;
     box-shadow: 0 0 30px rgba(0,0,0,.6);
     position: relative;
     width: 310px;
     background: rgba(255,255,255,0.99);
-    height: 460px;
+    height: 440px;
     float: right;
-    margin-right: 10px;
+    margin-right: 15px;
     color: #555;
     padding: 15px;
 }
@@ -53,6 +53,7 @@
     border: none;
     border-bottom: 2px solid #94934b;
     width: 100%;
+    color: #555;
 }
 
 .sign-in-textbox-outer {
@@ -63,4 +64,69 @@
     font-size: 14px;
     color: #94934b;
     padding-bottom: 5px;
+}
+
+.sign-in-checkbox {
+    box-sizing: border-box;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #d0d0d0;
+    display: inline-block;
+    border-radius: 1px;
+    vertical-align: top;
+    width: 1rem;
+    height: 1rem;
+    margin: .1125rem 0;
+    margin-right: .3125rem;
+    position: relative;
+    outline: 0;
+    transition: background .1s linear;
+    background: none;
+    cursor: pointer;
+}
+
+    .sign-in-checkbox:checked {
+        background: rgb(239,165,54);
+        border-color: rgb(239,165,54);
+    }
+
+    .sign-in-checkbox:after {
+        content: "";
+        width: 18px;
+        height: 11px;
+        position: absolute;
+        top: 0.8px;
+        left: -2.5px;
+        border: 4px solid #fff;
+        border-top: none;
+        border-right: none;
+        background: transparent;
+        -webkit-transform: rotate(-65deg) scale(.5);
+        transform: rotate(-65deg) scale(.5);
+        box-sizing: inherit;
+    }
+
+.sign-in-button {
+    display: block;
+    height: 38px;
+    padding: 0;
+    width: 100%;
+    outline: 0;
+    background: rgb(239,165,54);
+    color: #fff;
+    line-height: 38px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid rgb(239,165,54);
+    border-radius: 32px;
+    cursor: pointer;
+    transition: border 0.2s linear, background-color 0.2s linear, box-shadow 0.2s linear;
+}
+
+.sign-in-button:hover {
+    box-shadow: 0 0 10px rgb(239,165,54);
+    background: rgb(247, 182, 85);
+    border: 1px solid rgb(247, 182, 85);
 }
