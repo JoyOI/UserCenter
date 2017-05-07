@@ -12,6 +12,8 @@ namespace JoyOI.UserCenter.Controllers
 {
     public class RegisterController : BaseController<UserCenterContext, User, Guid>
     {
+        private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -22,8 +24,16 @@ namespace JoyOI.UserCenter.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(string email, [FromServices] IEmailSender EmailSender, [FromServices] AesCrypto Aes)
         {
-            var reg = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
-            if (!reg.IsMatch(email))
+            if (string.IsNullOrEmpty(email))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Email is invalid"];
+                    x.Details = SR["The email address cannot be null.", email];
+                    x.StatusCode = 400;
+                });
+            }
+            else if (!emailRegex.IsMatch(email))
             {
                 return Prompt(x =>
                 {

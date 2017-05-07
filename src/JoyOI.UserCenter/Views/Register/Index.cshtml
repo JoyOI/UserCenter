@@ -8,20 +8,22 @@
     <div class="logo">
         <img src="~/images/logo.png" />
     </div>
-    <div class="content">
-        <div class="trapezoid">
-            <div class="trapezoid-main">
-                <div class="trapezoid-inner">@SR["Register"]</div>
+    <form asp-action="Index">
+        <div class="content">
+            <div class="trapezoid">
+                <div class="trapezoid-main">
+                    <div class="trapezoid-inner">@SR["Register"]</div>
+                </div>
+            </div>
+            <div class="detail-outer">
+                <div class="textbox-label">@SR["Email address"]</div>
+                <input type="text" class="textbox" name="email" />
+                <div class="button-outer">
+                    <input type="submit" value="@SR["Send Email"]" class="button" />
+                </div>
             </div>
         </div>
-        <div class="detail-outer">
-            <div class="textbox-label">@SR["Email address"]</div>
-            <input type="text" class="textbox" />
-            <div class="button-outer">
-                <input type="submit" value="@SR["Send Email"]" class="button" />
-            </div>
-        </div>
-    </div>
+    </form>
     <div class="copyright">Copyright © @DateTime.Now.Year @SR["Beijing Tsba Education And Technologies Co., Ltd."]</div>
 </body>
 </html>
