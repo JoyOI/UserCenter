@@ -65,12 +65,8 @@
     border: none;
     width: 100%;
     color: #fff;
-    border-bottom: 2px solid hsla(0,0%,97%,.7);
-    transition: border 0.2s linear;
-}
-
-.textbox:hover {
     border-bottom: 2px solid #fff;
+    transition: border 0.2s linear;
 }
 
 .textbox:focus {
@@ -79,7 +75,7 @@
 
 .textbox-label {
     font-size: 14px;
-    color: hsla(0,0%,97%,.95);
+    color: #fff;
     padding-bottom: 5px;
     transition: color 0.2s linear;
 }
@@ -99,7 +95,7 @@
     line-height: 24px;
     font-size: 14px;
     text-align: center;
-    border: 2px solid hsla(0,0%,97%,.9);
+    border: 2px solid #fff;
     border-radius: 24px;
     cursor: pointer;
     transition: border 0.2s linear, color 0.2s linear, box-shadow 0.2s linear;
