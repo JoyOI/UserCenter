@@ -22,5 +22,7 @@ namespace JoyOI.UserCenter.Models
         public string Hint { get; set; }
 
         public DateTime Time { get; set; }
+
+        public string Ip { get; set; }
     }
 }

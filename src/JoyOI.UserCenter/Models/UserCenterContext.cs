@@ -82,6 +82,7 @@ namespace JoyOI.UserCenter.Models
             builder.Entity<User>(e =>
             {
                 e.HasIndex(x => x.Sex);
+                e.HasIndex(x => x.Email).IsUnique();
             });
 
             builder.Entity<UserLog>(e => 
