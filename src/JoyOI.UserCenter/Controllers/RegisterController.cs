@@ -53,7 +53,7 @@ namespace JoyOI.UserCenter.Controllers
             }
 
             var code = Aes.Encrypt(JsonConvert.SerializeObject(new Tuple<string, DateTime>(email, DateTime.Now.AddHours(2))));
-            await EmailSender.SendEmailAsync(email, SR["JoyOI Register Verification"], SR["<p>Please click the following link to continue register.</p><p><a href='{0}'>Click here.</a></p>", Request.Scheme + "://"] + Request.Host + Url.Action("VerifyEmail", new { code = code }));
+            await EmailSender.SendEmailAsync(email, SR["JoyOI Register Verification"], SR["<p>Please click the following link to continue register.</p><p><a href='{0}'>Click here.</a></p>", Request.Scheme + "://" + Request.Host + Url.Action("VerifyEmail", new { code = code })]);
 
             return Prompt(x => 
             {
