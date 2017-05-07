@@ -24,7 +24,7 @@
                 }
                 @if (!string.IsNullOrEmpty(Model.RedirectText))
                 {
-                    <a href="javascript:history.go(-1);" class="button purple">@Model.RedirectText</a>
+                    <a href="@Model.RedirectUrl" class="button purple">@Model.RedirectText</a>
                 }
             </div>
         </div>

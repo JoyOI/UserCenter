@@ -60,7 +60,7 @@ namespace JoyOI.UserCenter.Controllers
                 x.Title = SR["Succeeded"];
                 x.Details = SR["We have sent you an email which contains a URL to continue registering operations."];
                 x.RedirectText = SR["Go to email"];
-                x.RedirectUrl = "mail." + email.Split('@')[1];
+                x.RedirectUrl = "//mail." + email.Split('@')[1];
             });
         }
 

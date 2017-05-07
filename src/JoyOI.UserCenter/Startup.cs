@@ -82,7 +82,7 @@ namespace JoyOI.UserCenter
                     x.AddCulture(c.Cultures.ToObject<string[]>(), new JsonLocalizedStringStore(Path.Combine("Localization", c.Source.ToString())));
             });
 
-            services.AddSmtpEmailSender("smtp.ym.163.com", 25, "Pomelo Foundation Test Account", "test@pomelo.cloud", "test@pomelo.cloud", "Pomelo123456");
+            services.AddSmtpEmailSender("smtp.ym.163.com", 25, "Pomelo Foundation Test Account", "test@pomelo.cloud", "test@pomelo.cloud", "Test123456");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
