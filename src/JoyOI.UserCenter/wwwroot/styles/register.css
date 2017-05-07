@@ -18,7 +18,7 @@
 }
 
 .content {
-    width: 600px;
+    width: 400px;
     margin: 0 auto;
     margin-top: 25px;
 }
@@ -58,51 +58,61 @@
     margin: 25px;
 }
 
-.detail-content {
-    background: rgba(0,0,0,0.8);
-    color: #ddd;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 3px 10px rgba(0,0,0,.0);
-    transition: box-shadow 0.2s linear;
+.textbox {
+    background: none;
+    padding: 8px 0;
+    outline: 0;
+    border: none;
+    width: 100%;
+    color: #fff;
+    border-bottom: 2px solid hsla(0,0%,97%,.7);
+    transition: border 0.2s linear;
 }
 
-    .detail-content:hover {
-        box-shadow: 0 3px 10px rgba(0,0,0,.3);
+.textbox:hover {
+    border-bottom: 2px solid #fff;
+}
+
+.textbox:focus {
+    border-bottom: 2px solid #363b8d;
+}
+
+.textbox-label {
+    font-size: 14px;
+    color: hsla(0,0%,97%,.95);
+    padding-bottom: 5px;
+    transition: color 0.2s linear;
+}
+
+    .textbox-label.active {
+        color: #363b8d;
     }
 
 .button {
     text-decoration: none;
     display: inline-block;
-    height: 24px;
+    height: 40px;
     padding: 5px 20px;
     outline: 0;
-    background: #5f9fd6;
+    background: none;
     color: #fff;
     line-height: 24px;
     font-size: 14px;
     text-align: center;
-    border: 1px solid #5f9fd6;
+    border: 2px solid hsla(0,0%,97%,.9);
     border-radius: 24px;
     cursor: pointer;
-    transition: border 0.2s linear, background-color 0.2s linear, box-shadow 0.2s linear;
+    transition: border 0.2s linear, color 0.2s linear, box-shadow 0.2s linear;
 }
 
 .button:hover {
-    box-shadow: 0 3px 10px #5290c6;
-    background: #5290c6;
-    border: 1px solid #5290c6;
+    color: #363b8d;
+    border: 2px solid #363b8d;
 }
 
-    .button.purple {
-        border: 1px solid #c84fd7;
-        background: #c84fd7;
-    }
-
-    .button.purple:hover {
-        box-shadow: 0 3px 10px #b443c2;
-        background: #b443c2;
-        border: 1px solid #b443c2;
+.button-outer {
+    margin-top: 25px;
+    text-align: center;
 }
 
 .copyright {
