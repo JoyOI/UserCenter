@@ -22,6 +22,9 @@ namespace JoyOI.UserCenter.Models
 
     public class User : IdentityUser<Guid>
     {
+        [MaxLength(64)]
+        public string Nickname { get; set; }
+
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public Guid ExtensionStamp { get; set; }
 
