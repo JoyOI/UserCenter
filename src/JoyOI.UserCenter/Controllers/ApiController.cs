@@ -215,8 +215,14 @@ namespace JoyOI.UserCenter.Controllers
                     openId.ExpireTime = DateTime.Now.AddDays(15);
                     openId.Code = null;
                 }
+                
                 await DB.SaveChangesAsync();
-                return ApiResult(new { access_token = openId.AccessToken, expire_time = openId.ExpireTime });
+
+                return ApiResult(new
+                {
+                    access_token = openId.AccessToken,
+                    expire_time = openId.ExpireTime
+                });
             }
         }
     }
