@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 namespace JoyOI.UserCenter.Models
 {
+    public enum ApplicationType
+    {
+        Official,
+        ThirdParty
+    }
+
     public class Application
     {
         public Guid Id { get; set; }
@@ -17,6 +23,13 @@ namespace JoyOI.UserCenter.Models
         [MaxLength(128)]
         public string CallBackUrl { get; set; }
 
+        public ApplicationType Type { get; set; }
+
         public JsonObject<List<string>> ExtensionPermissions { get; set; } = "[]";
+
+        public JsonObject<List<Guid>> Owners { get; set; } = "[]";
+
+        [ConcurrencyCheck]
+        public Guid ConcurrencyStamp { get; set; }
     }
 }
