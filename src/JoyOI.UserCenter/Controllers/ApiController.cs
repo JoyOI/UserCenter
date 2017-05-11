@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using JoyOI.UserCenter.Models;
 
 namespace JoyOI.UserCenter.Controllers
@@ -17,7 +18,7 @@ namespace JoyOI.UserCenter.Controllers
         private static Random _random = new Random();
         private static string _randomStringDictionary = "qwertyuiopasdfghjklzxcvbnm1234567890";
 
-        private IActionResult ApiResult(object data) => Json(new ApiBody { code = 200, msg = "", data = data });
+        private IActionResult ApiResult(object data) => Json(new ApiBody { code = 200, msg = "ok", data = data });
         private IActionResult ApiResult(string msg, int statusCode = 400)
         {
             Response.StatusCode = 200;
@@ -227,6 +228,7 @@ namespace JoyOI.UserCenter.Controllers
             }
         }
 
+        [HttpPost]
         public IActionResult GetExtensionCoin(
             Guid id, 
             string field, 
@@ -241,6 +243,10 @@ namespace JoyOI.UserCenter.Controllers
             else if (Application.Secret != secret)
             {
                 return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (Application.ExtensionPermissions.Object.Any(x => x == field.ToLower()))
+            {
+                return ApiResult(SR["This application does not have the permission to access this field"]);
             }
             else if (!DB.OpenIds.Any(x => x.Id == OpenId))
             {
@@ -259,6 +265,63 @@ namespace JoyOI.UserCenter.Controllers
                 else
                 {
                     return ApiResult(openId.User.Extensions.Object[field.ToLower()]);
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetExtensionCoin(
+            Guid id,
+            string field,
+            long value,
+            string accessToken,
+            Guid OpenId,
+            string secret)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (Application.ExtensionPermissions.Object.Any(x => x == field.ToLower()))
+            {
+                return ApiResult(SR["This application does not have the permission to access this field"]);
+            }
+            else if (!DB.OpenIds.Any(x => x.Id == OpenId))
+            {
+                return ApiResult(SR["The user is not found."], 404);
+            }
+            else
+            {
+                var openId = DB.OpenIds
+                    .Include(x => x.User)
+                    .Single(x => x.Id == OpenId);
+                
+                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                {
+                    return ApiResult(SR["Your access token is invalid."], 403);
+                }
+                else
+                {
+                    openId.User.Extensions.Object[field] = value;
+                    openId.User.Extensions = JsonConvert.SerializeObject(openId.User.Extensions.Object);
+
+                    var result = await DB.Users
+                        .Where(x => x.Id == openId.UserId && x.ConcurrencyStamp == openId.User.ConcurrencyStamp)
+                        .SetField(x => x.Extensions).WithValue(openId.User.Extensions)
+                        .UpdateAsync();
+
+                    if (result == 0)
+                    {
+                        return ApiResult(SR["The concurrency stamp was out of date."]);
+                    }
+
+                    DB.Users.Attach(openId.User);
+
+                    return ApiResult(null);
                 }
             }
         }

@@ -25,9 +25,6 @@ namespace JoyOI.UserCenter.Models
         [MaxLength(64)]
         public string Nickname { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public Guid ExtensionStamp { get; set; }
-
         public JsonObject<Dictionary<string, long>> Extensions { get; set; } = "[]";
 
         public AvatarSource AvatarSource { get; set; }
