@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Pomelo.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using JoyOI.UserCenter.Models;
@@ -223,6 +224,42 @@ namespace JoyOI.UserCenter.Controllers
                     access_token = openId.AccessToken,
                     expire_time = openId.ExpireTime
                 });
+            }
+        }
+
+        public IActionResult GetExtensionCoin(
+            Guid id, 
+            string field, 
+            string accessToken, 
+            Guid OpenId,
+            string secret)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (!DB.OpenIds.Any(x => x.Id == OpenId))
+            {
+                return ApiResult(SR["The user is not found."], 404);
+            }
+            else
+            {
+                var openId = DB.OpenIds
+                    .Include(x => x.User)
+                    .Single(x => x.Id == OpenId);
+
+                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                {
+                    return ApiResult(SR["Your access token is invalid."], 403);
+                }
+                else
+                {
+                    return ApiResult(openId.User.Extensions.Object[field.ToLower()]);
+                }
             }
         }
     }
