@@ -21,8 +21,7 @@ namespace JoyOI.UserCenter.SDK
             _secret = configuration["JoyOI:Secret"];
             _baseUri = new Uri(configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.net");
         }
-
-
+        
         public async Task<ResponseBody<User>> AuthorizeAsync(string username, string password)
         {
             using (var client = new HttpClient() { BaseAddress = _baseUri })
