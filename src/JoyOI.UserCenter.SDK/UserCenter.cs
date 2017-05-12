@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace JoyOI.UserCenter.SDK
@@ -9,13 +10,22 @@ namespace JoyOI.UserCenter.SDK
     public class UserCenter
     {
         private Guid _appId;
+        private Uri _baseUri;
         private string _secret;
+        private IConfiguration _configuration;
 
-        private static Uri BaseUri = new Uri("http://api.uc.joyoi.com");
+        public UserCenter(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _appId = Guid.Parse(configuration["JoyOI:AppId"]);
+            _secret = configuration["JoyOI:Secret"];
+            _baseUri = new Uri(configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.net");
+        }
+
 
         public async Task<ResponseBody<User>> AuthorizeAsync(string username, string password)
         {
-            using (var client = new HttpClient() { BaseAddress = BaseUri })
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
                 var result = await client.PostAsync("/Authorize/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -32,7 +42,7 @@ namespace JoyOI.UserCenter.SDK
             string accessToken,
             string field)
         {
-            using (var client = new HttpClient() { BaseAddress = BaseUri })
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
                 var result = await client.PostAsync("/GetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -52,7 +62,7 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = BaseUri })
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
                 var result = await client.PostAsync("/SetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -73,7 +83,7 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = BaseUri })
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
                 var result = await client.PostAsync("/IncreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -94,7 +104,7 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = BaseUri })
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
                 var result = await client.PostAsync("/DecreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
