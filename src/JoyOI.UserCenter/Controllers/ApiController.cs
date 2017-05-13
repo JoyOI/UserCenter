@@ -325,7 +325,7 @@ namespace JoyOI.UserCenter.Controllers
             Guid id, 
             string field, 
             string accessToken, 
-            Guid OpenId,
+            Guid openId,
             string secret)
         {
             if (Application == null)
@@ -340,23 +340,23 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == OpenId))
+            else if (!DB.OpenIds.Any(x => x.Id == openId))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
-                var openId = DB.OpenIds
+                var _openId = DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == OpenId);
+                    .Single(x => x.Id == openId);
 
-                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
-                    return ApiResult(openId.User.Extensions.Object[field.ToLower()]);
+                    return ApiResult(_openId.User.Extensions.Object[field.ToLower()]);
                 }
             }
         }
@@ -367,7 +367,7 @@ namespace JoyOI.UserCenter.Controllers
             string field,
             long value,
             string accessToken,
-            Guid OpenId,
+            Guid openId,
             string secret)
         {
             if (Application == null)
@@ -382,28 +382,28 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == OpenId))
+            else if (!DB.OpenIds.Any(x => x.Id == openId))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
-                var openId = DB.OpenIds
+                var _openId = DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == OpenId);
+                    .Single(x => x.Id == openId);
                 
-                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
-                    openId.User.Extensions.Object[field] = value;
-                    openId.User.Extensions = JsonConvert.SerializeObject(openId.User.Extensions.Object);
+                    _openId.User.Extensions.Object[field] = value;
+                    _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
                     var result = await DB.Users
-                        .Where(x => x.Id == openId.UserId && x.ConcurrencyStamp == openId.User.ConcurrencyStamp)
-                        .SetField(x => x.Extensions).WithValue(openId.User.Extensions)
+                        .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
+                        .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
                         .UpdateAsync();
 
                     if (result == 0)
@@ -411,7 +411,7 @@ namespace JoyOI.UserCenter.Controllers
                         return ApiResult(SR["The concurrency stamp was out of date."]);
                     }
 
-                    DB.Users.Attach(openId.User);
+                    DB.Users.Attach(_openId.User);
 
                     return ApiResult(null);
                 }
@@ -424,7 +424,7 @@ namespace JoyOI.UserCenter.Controllers
             string field,
             long value,
             string accessToken,
-            Guid OpenId,
+            Guid openId,
             string secret)
         {
             if (Application == null)
@@ -439,29 +439,29 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == OpenId))
+            else if (!DB.OpenIds.Any(x => x.Id == openId))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
 updateExtensionCoin:
-                var openId = DB.OpenIds
+                var _openId = DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == OpenId);
+                    .Single(x => x.Id == openId);
 
-                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
-                    openId.User.Extensions.Object[field] = openId.User.Extensions.Object[field] + value;
-                    openId.User.Extensions = JsonConvert.SerializeObject(openId.User.Extensions.Object);
+                    _openId.User.Extensions.Object[field] = _openId.User.Extensions.Object[field] + value;
+                    _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
                     var result = await DB.Users
-                        .Where(x => x.Id == openId.UserId && x.ConcurrencyStamp == openId.User.ConcurrencyStamp)
-                        .SetField(x => x.Extensions).WithValue(openId.User.Extensions)
+                        .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
+                        .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
                         .UpdateAsync();
 
                     if (result == 0)
@@ -469,7 +469,7 @@ updateExtensionCoin:
                         goto updateExtensionCoin;
                     }
 
-                    DB.Users.Attach(openId.User);
+                    DB.Users.Attach(_openId.User);
 
                     return ApiResult(null);
                 }
@@ -570,6 +570,45 @@ updateExtensionCoin:
             catch
             {
                 return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
+            }
+        }
+
+        public IActionResult GetUsername(
+            Guid id,
+            string secret,
+            Guid openId,
+            string accessToken)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["This application does not have the permission to access usernames."]);
+            }
+            else if (!DB.OpenIds.Any(x => x.Id == openId))
+            {
+                return ApiResult(SR["The user is not found."], 404);
+            }
+            else
+            {
+                var _openId = DB.OpenIds
+                    .Include(x => x.User)
+                    .Single(x => x.Id == openId);
+
+                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
+                {
+                    return ApiResult(SR["Your access token is invalid."], 403);
+                }
+                else
+                {
+                    return ApiResult(_openId.User.UserName);
+                }
             }
         }
     }

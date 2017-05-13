@@ -148,5 +148,22 @@ namespace JoyOI.UserCenter.SDK
                 return await result.Content.ReadAsByteArrayAsync();
             }
         }
+
+        public async Task<ResponseBody<string>> GetUsernameAsync(
+            Guid openId,
+            string accessToken)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/GetUsername/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "openid", openId.ToString() },
+                    { "accessToken", accessToken }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<string>>(ret);
+            }
+        }
     }
 }
