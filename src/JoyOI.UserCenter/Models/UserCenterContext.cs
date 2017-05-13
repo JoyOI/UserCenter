@@ -36,7 +36,8 @@ namespace JoyOI.UserCenter.Models
                     Id = Guid.Parse("b453aa01-680e-49ca-a332-9d3ae296af9f"),
                     CallBackUrl = "http://callback",
                     Name = "Empty",
-                    Secret = "0"
+                    Secret = "0",
+                    Type = ApplicationType.Official
                 });
                 SaveChanges();
             }
