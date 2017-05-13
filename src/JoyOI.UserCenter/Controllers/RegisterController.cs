@@ -174,7 +174,8 @@ namespace JoyOI.UserCenter.Controllers
                 Nickname = nickname,
                 Email = parsedEmail.ToLower(),
                 EmailConfirmed = true,
-                GravatarEmail = parsedEmail
+                AvatarSource = AvatarSource.GravatarPolling,
+                AvatarData = parsedEmail
             };
 
             var result = await UserManager.CreateAsync(user);
