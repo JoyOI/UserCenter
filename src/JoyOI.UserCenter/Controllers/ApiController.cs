@@ -270,6 +270,7 @@ namespace JoyOI.UserCenter.Controllers
 
                 return ApiResult(new
                 {
+                    open_id = openId.Id,
                     access_token = openId.AccessToken,
                     expire_time = openId.ExpireTime
                 });
