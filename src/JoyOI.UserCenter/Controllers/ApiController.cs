@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +20,7 @@ namespace JoyOI.UserCenter.Controllers
     {
         private static Random _random = new Random();
         private static string _randomStringDictionary = "qwertyuiopasdfghjklzxcvbnm1234567890";
+        private static MD5 _md5 = MD5.Create();
 
         private IActionResult ApiResult(object data) => Json(new ApiBody { code = 200, msg = "ok", data = data });
         private IActionResult ApiResult(string msg, int statusCode = 400)
@@ -308,8 +312,6 @@ namespace JoyOI.UserCenter.Controllers
                     {
                         open_id = _openId.Id,
                         nickname = _openId.User.Nickname,
-                        avatar_source = _openId.User.AvatarSource,
-                        avatar_data = _openId.User.AvatarData,
                         phone = _openId.User.PhoneNumber,
                         email = _openId.User.Email,
                         sex = _openId.User.Sex
@@ -529,6 +531,45 @@ updateExtensionCoin:
 
                     return ApiResult(null);
                 }
+            }
+        }
+
+        [HttpGet]
+        [ResponseCache(Duration = 1000 * 60 * 60 * 24 * 7)]
+        public async Task<IActionResult> GetAvatar(Guid id, int size = 230)
+        {
+            var openId = DB.OpenIds
+                .Include(x => x.User)
+                .SingleOrDefault(x => x.Id == id);
+            if (openId == null)
+            {
+                return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/png", "avatar.png");
+            }
+            try
+            {
+                if (openId.User.AvatarSource == AvatarSource.GravatarPolling)
+                {
+                    var md5_email = string.Join("", _md5.ComputeHash(Encoding.UTF8.GetBytes(openId.User.AvatarData)).Select(x => x.ToString("x2")));
+                    using (var client = new HttpClient() { BaseAddress = new Uri("https://www.gravatar.com") })
+                    {
+                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }");
+                        var bytes = await result.Content.ReadAsByteArrayAsync();
+                        return File(bytes, "image/png", "avatar.png");
+                    }
+                }
+                else if (openId.User.AvatarSource == AvatarSource.WeChatPolling)
+                {
+                    // TODO: support wechat avatar
+                    throw new NotSupportedException();
+                }
+                else // Local storage
+                {
+                    return File((await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(openId.User.AvatarData))).Bytes, "image/png", "avatar.png");
+                }
+            }
+            catch
+            {
+                return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
             }
         }
     }

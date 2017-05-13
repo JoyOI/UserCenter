@@ -134,5 +134,19 @@ namespace JoyOI.UserCenter.SDK
                 return JsonConvert.DeserializeObject<ResponseBody<UserProfileResult>>(ret);
             }
         }
+
+        public string GetAvatarUrl(Guid openId, int size = 230)
+        {
+            return $"{ _baseUri.ToString() }/getavatar/{ openId }?size={ size }";
+        }
+
+        public async Task<byte[]> GetAvatarBytesAsync(Guid openId, int size = 230)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.GetAsync($"/getavatar/{ openId }?size={ size }");
+                return await result.Content.ReadAsByteArrayAsync();
+            }
+        }
     }
 }

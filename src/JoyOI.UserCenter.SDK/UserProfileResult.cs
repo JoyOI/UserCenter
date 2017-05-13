@@ -27,9 +27,5 @@ namespace JoyOI.UserCenter.SDK
         public string email { get; set; }
 
         public Sex sex { get; set; }
-
-        public AvatarSource avatar_source { get; set; }
-
-        public string avatar_data { get; set; }
     }
 }
