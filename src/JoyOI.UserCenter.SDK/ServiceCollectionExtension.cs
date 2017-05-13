@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddJoyOIUserCenter(this IServiceCollection self)
         {
-            return self.AddSingleton<UserCenter>();
+            return self.AddSingleton<JoyOIUC>();
         }
     }
 }

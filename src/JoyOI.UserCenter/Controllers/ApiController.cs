@@ -229,6 +229,94 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> TrustedAuthorize(Guid id, string secret, string username, string password)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (!(await SignInManager.CheckPasswordSignInAsync(new User { UserName = username }, password, false)).Succeeded)
+            {
+                return ApiResult(SR["The username or password is incorrect."], 401);
+            }
+            else
+            {
+                var user = await UserManager.FindByNameAsync(username);
+                var openId = DB.OpenIds.SingleOrDefault(x => x.ApplicationId == id && x.UserId == user.Id);
+                if (openId == null)
+                {
+                    openId = new OpenId
+                    {
+                        AccessToken = _generateString(64),
+                        ApplicationId = id,
+                        Code = null,
+                        ExpireTime = DateTime.Now.AddDays(15),
+                        UserId = user.Id
+                    };
+                    DB.OpenIds.Add(openId);
+                }
+                else
+                {
+                    openId.AccessToken = _generateString(64);
+                    openId.ExpireTime = DateTime.Now.AddDays(15);
+                    openId.Code = null;
+                }
+
+                await DB.SaveChangesAsync();
+
+                return ApiResult(new
+                {
+                    access_token = openId.AccessToken,
+                    expire_time = openId.ExpireTime
+                });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult GetUserProfile(Guid id, string secret, Guid openId, string accessToken)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                var _openId = DB.OpenIds
+                    .Include(x => x.User)
+                    .SingleOrDefault(x => x.Id == openId);
+                if (_openId == null)
+                {
+                    return ApiResult(SR["The open id is not found.", 404]);
+                }
+                else if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
+                {
+                    return ApiResult(SR["Your access token is invalid."], 403);
+                }
+                else
+                {
+                    return ApiResult(new
+                    {
+                        open_id = _openId.Id,
+                        nickname = _openId.User.Nickname,
+                        avatar_source = _openId.User.AvatarSource,
+                        avatar_data = _openId.User.AvatarData,
+                        phone = _openId.User.PhoneNumber,
+                        email = _openId.User.Email,
+                        sex = _openId.User.Sex
+                    });
+                }
+            }
+        }
+
+        [HttpPost]
         public IActionResult GetExtensionCoin(
             Guid id, 
             string field, 

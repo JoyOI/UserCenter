@@ -29,11 +29,11 @@ namespace JoyOI.UserCenter.Models
 
         public AvatarSource AvatarSource { get; set; }
 
+        [MaxLength(256)]
+        public string AvatarData { get; set; }
+
         [MaxLength(64)]
         public string WeChatOpenId { get; set; }
-
-        [MaxLength(128)]
-        public string GravatarEmail{ get; set; }
 
         [MaxLength(32)]
         public string School { get; set; }
