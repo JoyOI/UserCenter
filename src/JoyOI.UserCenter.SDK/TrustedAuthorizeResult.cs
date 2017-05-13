@@ -8,6 +8,8 @@ namespace JoyOI.UserCenter.SDK
 
         public string access_token { get; set; }
 
+        public bool is_root { get; set; }
+
         public DateTime expire_time { get; set; }
     }
 }

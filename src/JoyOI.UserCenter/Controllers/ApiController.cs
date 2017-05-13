@@ -272,7 +272,8 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     open_id = openId.Id,
                     access_token = openId.AccessToken,
-                    expire_time = openId.ExpireTime
+                    expire_time = openId.ExpireTime,
+                    is_root = (await UserManager.GetRolesAsync(openId.User)).Any(x => x == "Root")
                 });
             }
         }
