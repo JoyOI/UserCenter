@@ -178,7 +178,7 @@ namespace JoyOI.UserCenter.Controllers
                 AvatarData = parsedEmail
             };
 
-            var result = await UserManager.CreateAsync(user);
+            var result = await UserManager.CreateAsync(user, password);
 
             if (!result.Succeeded)
             {

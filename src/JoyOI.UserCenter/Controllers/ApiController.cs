@@ -243,7 +243,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["Application secret is invalid."]);
             }
-            else if (!(await SignInManager.CheckPasswordSignInAsync(new User { UserName = username }, password, false)).Succeeded)
+            else if (!await UserManager.CheckPasswordAsync(await UserManager.FindByNameAsync(username), password))
             {
                 return ApiResult(SR["The username or password is incorrect."], 401);
             }
