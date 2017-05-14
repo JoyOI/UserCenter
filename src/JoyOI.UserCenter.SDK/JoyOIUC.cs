@@ -110,6 +110,7 @@ namespace JoyOI.UserCenter.SDK
             {
                 var result = await client.PostAsync("/TrustedAuthorize/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
+                    { "secret", _secret },
                     { "username", username },
                     { "password", password }
                 }));

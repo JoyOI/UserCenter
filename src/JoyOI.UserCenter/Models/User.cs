@@ -25,7 +25,7 @@ namespace JoyOI.UserCenter.Models
         [MaxLength(64)]
         public string Nickname { get; set; }
 
-        public JsonObject<Dictionary<string, long>> Extensions { get; set; } = "[]";
+        public JsonObject<Dictionary<string, long>> Extensions { get; set; } = "{}";
 
         public AvatarSource AvatarSource { get; set; }
 
@@ -40,8 +40,6 @@ namespace JoyOI.UserCenter.Models
 
         [MaxLength(64)]
         public string Address { get; set; }
-
-        public JsonObject<List<Guid>> AuthorizedApplications { get; set; } = "[]";
 
         public Sex Sex { get; set; }
     }
