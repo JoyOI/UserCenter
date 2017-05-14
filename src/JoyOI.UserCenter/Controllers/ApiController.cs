@@ -607,7 +607,7 @@ updateExtensionCoin:
                 }
                 else
                 {
-                    return ApiResult(_openId.User.UserName);
+                    return ApiResult(data: _openId.User.UserName);
                 }
             }
         }
