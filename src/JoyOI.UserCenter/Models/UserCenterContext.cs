@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
@@ -27,10 +29,13 @@ namespace JoyOI.UserCenter.Models
 
         public DbSet<Blob> Blobs { get; set; }
 
-        public void Initialize()
+        public async void InitializeAsync(IServiceProvider services)
         {
             if (Database.EnsureCreated())
             {
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                await roleManager.CreateAsync(new IdentityRole<Guid>("Root"));
+
                 Applications.Add(new Application
                 {
                     Id = Guid.Parse("b453aa01-680e-49ca-a332-9d3ae296af9f"),
