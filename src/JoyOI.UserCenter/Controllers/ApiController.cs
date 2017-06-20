@@ -564,7 +564,15 @@ updateExtensionCoin:
                 }
                 else // Local storage
                 {
-                    return File((await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(openId.User.AvatarData))).Bytes, "image/png", "avatar.png");
+                    var bytes = (await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(openId.User.AvatarData))).Bytes;
+                    if (bytes.Length > 0)
+                    {
+                        return File(bytes, "image/png", "avatar.png");
+                    }
+                    else
+                    {
+                        return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
+                    }
                 }
             }
             catch
