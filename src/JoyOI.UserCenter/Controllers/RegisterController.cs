@@ -16,6 +16,15 @@ namespace JoyOI.UserCenter.Controllers
         private const string usernameRegexString = "[A-Za-z0-9_-]{4,32}";
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
 
+        [NonAction]
+        private IActionResult _Prompt(Action<Prompt> setupPrompt)
+        {
+            var prompt = new Prompt();
+            setupPrompt(prompt);
+            Response.StatusCode = prompt.StatusCode;
+            return View("_Prompt", prompt);
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -32,7 +41,7 @@ namespace JoyOI.UserCenter.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Email is invalid"];
                     x.Details = SR["The email address cannot be null.", email];
@@ -41,7 +50,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (!emailRegex.IsMatch(email))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Email is invalid"];
                     x.Details = SR["The email address <{0}> is invalid.", email];
@@ -50,7 +59,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (DB.Users.Any(x => x.Email == email))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Email is invalid"];
                     x.Details = SR["The email address <{0}> is already existed.", email];
@@ -61,7 +70,7 @@ namespace JoyOI.UserCenter.Controllers
             var code = Aes.Encrypt(JsonConvert.SerializeObject(new Tuple<string, DateTime, string>(email, DateTime.Now.AddHours(2), Referer)));
             await EmailSender.SendEmailAsync(email, SR["JoyOI Register Verification"], SR["<p>Please click the following link to continue register.</p><p><a href='{0}'>Click here.</a></p>", Request.Scheme + "://" + Request.Host + Url.Action("VerifyEmail", new { code = code })]);
 
-            return Prompt(x => 
+            return _Prompt(x => 
             {
                 x.Title = SR["Succeeded"];
                 x.Details = SR["We have sent you an email which contains a URL to continue registering operations."];
@@ -78,7 +87,7 @@ namespace JoyOI.UserCenter.Controllers
                 var obj = JsonConvert.DeserializeObject<Tuple<string, DateTime, string>>(Aes.Decrypt(code));
                 if (obj.Item2 < DateTime.Now)
                 {
-                    return Prompt(x => 
+                    return _Prompt(x => 
                     {
                         x.Title = SR["Invalid Code"];
                         x.Details = SR["Your code is out of date, please retry to register."];
@@ -94,7 +103,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             catch
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Invalid Code"];
                     x.Details = SR["Your code is invalid, please retry to register."];
@@ -122,7 +131,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             catch
             {
-                return Prompt(x => 
+                return _Prompt(x => 
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = SR["Your email address is invalid, please open this page from the verification email content."];
@@ -133,7 +142,7 @@ namespace JoyOI.UserCenter.Controllers
 
             if (DB.Users.Any(x => x.UserName == username))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = SR["The username <{0}> is already exists. Please pick another one.", username];
@@ -142,7 +151,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (!usernameRegex.IsMatch(username))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = SR["The username must match the rule {0}.", usernameRegexString];
@@ -151,7 +160,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (password != confirm)
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = SR["The confirm password is not match the password."];
@@ -160,7 +169,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (DB.Users.Any(x => x.Email == parsedEmail))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = SR["The email address <{0}> is already existed.", email];
@@ -182,7 +191,7 @@ namespace JoyOI.UserCenter.Controllers
 
             if (!result.Succeeded)
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
                     x.Details = string.Join("<br/>", result.Errors.Select(y => SR[y.Description]));
@@ -197,7 +206,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                return Prompt(x => 
+                return _Prompt(x => 
                 {
                     x.Title = SR["Register Succeeded"];
                     x.Details = SR["{0}, welcome to JoyOI!", username];

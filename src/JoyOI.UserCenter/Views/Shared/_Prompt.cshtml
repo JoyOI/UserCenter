@@ -1,0 +1,37 @@
+﻿@model Prompt
+@{ 
+    Layout = null;
+}
+<html>
+<head>
+    <link href="~/styles/prompt.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="logo">
+        <img src="~/images/logo.png" />
+    </div>
+    <div class="content">
+        <div class="trapezoid">
+            <div class="trapezoid-main">
+                <div class="trapezoid-inner">@Model.Title</div>
+            </div>
+        </div>
+        <div class="detail-outer">
+            <div class="detail-content">
+                @(new HtmlString(Model.Details))
+            </div>
+            <div class="buttons">
+                @if (!Model.HideBack)
+                {
+                    <a href="javascript:history.go(-1);" class="button">@SR["Back"]</a>
+                }
+                @if (!string.IsNullOrEmpty(Model.RedirectText))
+                {
+                    <a href="@Model.RedirectUrl" class="button purple">@Model.RedirectText</a>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="copyright">Copyright © @DateTime.Now.Year @SR["Beijing Tsba Education And Technologies Co., Ltd."]</div>
+</body>
+</html>

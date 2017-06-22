@@ -29,6 +29,16 @@ namespace JoyOI.UserCenter.Controllers
             return Json(new ApiBody { code = statusCode, msg = msg, data = null });
         }
 
+        [NonAction]
+        private IActionResult _Prompt(Action<Prompt> setupPrompt)
+        {
+            var prompt = new Prompt();
+            setupPrompt(prompt);
+            Response.StatusCode = prompt.StatusCode;
+            return View("_Prompt", prompt);
+        }
+
+
         private static string _generateString(int length)
         {
             var sb = new StringBuilder();
@@ -83,7 +93,7 @@ namespace JoyOI.UserCenter.Controllers
         {
             if (Application == null)
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["The application is not found."];
@@ -92,7 +102,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (!CallBackUrl.StartsWith(Application.CallBackUrl))
             {
-                return Prompt(x => 
+                return _Prompt(x => 
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["The callback URL is invalid."];
@@ -115,7 +125,7 @@ namespace JoyOI.UserCenter.Controllers
         {
             if (Application == null)
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["The application is not found."];
@@ -124,7 +134,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (!CallBackUrl.StartsWith(Application.CallBackUrl))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["The callback URL is invalid."];
@@ -133,7 +143,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (string.IsNullOrEmpty(Username) || string.IsNullOrEmpty(Password))
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["Username or password cannot be null."];
@@ -144,7 +154,7 @@ namespace JoyOI.UserCenter.Controllers
             var result = await SignInManager.PasswordSignInAsync(Username, Password, true, false);
             if (!result.Succeeded)
             {
-                return Prompt(x =>
+                return _Prompt(x =>
                 {
                     x.Title = SR["Sign in failed"];
                     x.Details = SR[result.ToString()];
