@@ -10,7 +10,7 @@ using JoyOI.UserCenter.Models;
 
 namespace JoyOI.UserCenter.Controllers
 {
-    public class RegisterController : BaseController<UserCenterContext, User, Guid>
+    public class RegisterController : BaseController
     {
         private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
         private const string usernameRegexString = "[A-Za-z0-9_-]{4,32}";

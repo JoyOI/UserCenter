@@ -12763,7 +12763,7 @@ body {
 }
 
 a {
-    color: #637d4b;
+    color: #824883;
     -webkit-transition: all .25s;
     -moz-transition: all .25s;
     -ms-transition: all .25s;
@@ -12812,10 +12812,10 @@ iframe {
     }
 
     .textbox:focus {
-        border-color: #637d4b;
+        border-color: #824883;
         background: #fcfcfc;
-        -webkit-box-shadow: 0 0 10px #637d4b;
-        box-shadow: 0 0 10px #637d4b;
+        -webkit-box-shadow: 0 0 10px #824883;
+        box-shadow: 0 0 10px #824883;
         behavior: url(/Styles/PIE.htc)
     }
 
@@ -12832,7 +12832,7 @@ iframe {
 }
 
 .btn-default {
-    background: #637d4b;
+    background: #824883;
     color: #fff;
     border: none;
     -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 2px 0 -2px rgba(0,0,0,.2),0 0 2px 0 rgba(0,0,0,.12);
@@ -12846,7 +12846,7 @@ iframe {
 }
 
     .btn-default:active, .btn-default:focus, .btn-default:hover {
-        background: #637d4b;
+        background: #824883;
         -webkit-box-shadow: 0 3px 5px 0 rgba(0,0,0,.14),0 3px 4px -2px rgba(0,0,0,.2),0 1px 12px 0 rgba(0,0,0,.12);
         -moz-box-shadow: 0 3px 5px 0 rgba(0,0,0,.14),0 3px 4px -2px rgba(0,0,0,.2),0 1px 12px 0 rgba(0,0,0,.12);
         box-shadow: 0 3px 5px 0 rgba(0,0,0,.14),0 3px 4px -2px rgba(0,0,0,.2),0 1px 12px 0 rgba(0,0,0,.12);
@@ -12856,7 +12856,7 @@ iframe {
 
         .btn-default:active:focus {
             outline: 0;
-            background: #637d4b;
+            background: #824883;
             color: #fff
         }
 
@@ -12888,7 +12888,7 @@ iframe {
     .input-group .bar {
         width: 100%;
         height: 2px;
-        background: #637d4b;
+        background: #824883;
         position: absolute;
         left: 0;
         bottom: 0;
@@ -12945,13 +12945,13 @@ pre {
 
 ::-moz-selection {
     color: #fff;
-    background: #637d4b;
+    background: #824883;
     text-shadow: none
 }
 
 ::selection {
     color: #fff;
-    background: #637d4b;
+    background: #824883;
     text-shadow: none
 }
 
@@ -13067,7 +13067,7 @@ pre {
             }
 
             .navbar-default.page-scrolled .navbar-nav li a:before {
-                background: #637d4b
+                background: #824883
             }
 
         .navbar-default.page-scrolled .navbar-brand {
@@ -13111,7 +13111,7 @@ pre {
         }
 
         .search-toggle-wrap .search-toggle:hover i {
-            color: #637d4b;
+            color: #824883;
             background: #fff
         }
 
@@ -13121,7 +13121,7 @@ pre {
 
 .page-scrolled .search-toggle-wrap .search-toggle:hover i {
     color: #fff;
-    background: #637d4b
+    background: #824883
 }
 
 .cover {
@@ -13298,7 +13298,7 @@ pre {
         }
 
         .card .card-header .featured-image-countainer {
-            background-color: #637d4b;
+            background-color: #824883;
             height: 200px;
             width: 100%;
             background-size: cover;
@@ -13368,7 +13368,7 @@ pre {
         }
 
             .card .title a:hover {
-                color: #637d4b
+                color: #824883
             }
 
     .card .meta {
@@ -13397,7 +13397,7 @@ pre {
         }
 
             .card .meta a:hover {
-                color: #637d4b
+                color: #824883
             }
 
     .card .post-entry {
@@ -13447,7 +13447,7 @@ pre {
             }
 
             .card .card-footer .parmalink:hover {
-                color: #637d4b
+                color: #824883
             }
 
                 .card .card-footer .parmalink:hover i {
@@ -13476,7 +13476,7 @@ pre {
             }
 
             .card .card-footer .share-wrap:hover i.share-button {
-                color: #637d4b
+                color: #824883
             }
 
             .card .card-footer .share-wrap .share-link-wrap {
@@ -13623,7 +13623,7 @@ pre {
         }
 
             .side-panel .author a .name:hover {
-                color: #637d4b
+                color: #824883
             }
 
         .side-panel .author .meta-info {
@@ -13652,7 +13652,7 @@ pre {
                 }
 
                     .side-panel .author .meta-info span a:hover {
-                        color: #637d4b
+                        color: #824883
                     }
 
         .side-panel .author .bio {
@@ -13742,7 +13742,7 @@ pre {
     }
 
     .prev-next-wrap .next-post, .prev-next-wrap .previous-post {
-        background-color: #637d4b;
+        background-color: #824883;
         box-sizing: border-box;
         width: 48%;
         color: #fff;
@@ -13852,7 +13852,7 @@ pre {
         }
 
         .pagination a:hover {
-            color: #637d4b
+            color: #824883
         }
 
 .dark-bg .pagination {
@@ -13864,7 +13864,7 @@ pre {
     }
 
         .dark-bg .pagination a:hover {
-            color: #637d4b
+            color: #824883
         }
 
 .main-footer {
@@ -13919,7 +13919,7 @@ pre {
     }
 
         .widget-newsletter form .submit-button:hover {
-            color: #637d4b
+            color: #824883
         }
 
     .widget-newsletter form label {
@@ -14085,7 +14085,7 @@ pre {
 
                 .widget .social li a:hover {
                     color: #fff;
-                    background: #637d4b;
+                    background: #824883;
                     -webkit-box-shadow: 0 5px 7px 0 rgba(0,0,0,.24),0 5px 5px -2px rgba(0,0,0,.12),0 2px 24px 0 rgba(0,0,0,.24);
                     -moz-box-shadow: 0 5px 7px 0 rgba(0,0,0,.24),0 5px 5px -2px rgba(0,0,0,.12),0 2px 24px 0 rgba(0,0,0,.24);
                     box-shadow: 0 5px 7px 0 rgba(0,0,0,.24),0 5px 5px -2px rgba(0,0,0,.12),0 2px 24px 0 rgba(0,0,0,.24)
@@ -14233,7 +14233,7 @@ pre {
 }
 
     .copyright a {
-        color: #637d4b
+        color: #824883
     }
 
         .copyright a:hover {
@@ -14247,7 +14247,7 @@ pre {
 }
 
     #back-to-top i {
-        background: #637d4b;
+        background: #824883;
         color: #fff;
         width: 42px;
         height: 42px;
@@ -14383,7 +14383,7 @@ pre {
             }
 
                 .search-popup #search-results .result-item:hover a {
-                    color: #637d4b
+                    color: #824883
                 }
 
 .card-error {
@@ -14448,7 +14448,7 @@ pre {
     }
 
         .navbar-collapse .navbar-nav li a:before {
-            background: #637d4b
+            background: #824883
         }
 
         .navbar-collapse .navbar-nav li a:hover {
@@ -14476,7 +14476,7 @@ pre {
 
             .search-toggle-wrap .search-toggle:hover i {
                 color: #fff;
-                background: #637d4b
+                background: #824883
             }
 
     .prev-next-wrap .next-post, .prev-next-wrap .previous-post {
@@ -14777,7 +14777,7 @@ pre {
 }
 
     .table th {
-        background: #637d4b;
+        background: #824883;
         border-right: 1px solid #ccc;
         border-bottom: none !important;
         color: #fff;
@@ -15484,7 +15484,7 @@ img {
         }
 
         .columns h1 {
-            color: #dcf9c2
+            color: #eedafd
         }
 
 .navbar-logo {
@@ -15540,16 +15540,16 @@ img {
 }
 
 .pagination .active, .pagination .active a {
-    background-color: #637d4b !important;
+    background-color: #824883 !important;
     border-color: #ccc !important
 }
 
 .pager-outer li a {
-    color: #637d4b
+    color: #824883
 }
 
     .pager-outer li a:hover {
-        color: #637d4b
+        color: #824883
     }
 
 .table > tbody > tr > td {
@@ -15589,7 +15589,7 @@ td i {
 }
 
 .profile-header {
-    background: #637d4b;
+    background: #824883;
     padding: 30px 20px 0 20px;
     background-position: 50% !important;
     background-size: cover !important;
