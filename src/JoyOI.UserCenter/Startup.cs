@@ -75,6 +75,8 @@ namespace JoyOI.UserCenter
                 .AddEntityFrameworkStores<UserCenterContext, Guid>()
                 .AddDefaultTokenProviders();
 
+            services.AddContextAccessor();
+
             services.AddPomeloLocalization(x =>
             {
                 var cultures = JsonConvert.DeserializeObject<List<dynamic>>(File.ReadAllText(Path.Combine("Localization", "cultures.json")));
@@ -88,8 +90,8 @@ namespace JoyOI.UserCenter
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole();
-            app.UseStaticFiles();
             app.UseFrontendLocalizer();
+            app.UseStaticFiles();
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
             app.UseSignalR();
