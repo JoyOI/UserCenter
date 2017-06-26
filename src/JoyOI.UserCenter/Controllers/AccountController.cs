@@ -17,14 +17,35 @@ namespace JoyOI.UserCenter.Controllers
 {
     public class AccountController : BaseController
     {
+        private static Random _random = new Random();
         private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
         private const string usernameRegexString = "[A-Za-z0-9_-]{4,32}";
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
         private static MD5 _md5 = MD5.Create();
 
-        public IActionResult Index()
+        [HttpGet("[controller]/{id:Guid?}")]
+        public IActionResult Index(Guid? userId)
         {
-            return View();
+            ViewBag.ImageId = _random.Next() % 21 + 1;
+
+            if (!userId.HasValue)
+            {
+                userId = User.Current.Id;
+            }
+
+            var user = DB.Users.SingleOrDefault(x => x.Id == userId.Value);
+
+            if (user == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = "User Not Found";
+                    x.Details = "The specified user is not found.";
+                    x.StatusCode = 404;
+                });
+            }
+
+            return View(user);
         }
 
         [HttpGet]
@@ -64,7 +85,7 @@ namespace JoyOI.UserCenter.Controllers
                 });
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Account");
         }
 
         [NonAction]
