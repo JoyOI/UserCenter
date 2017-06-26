@@ -42,5 +42,9 @@ namespace JoyOI.UserCenter.Models
         public string Address { get; set; }
 
         public Sex Sex { get; set; }
+
+        public DateTime RegisterTime { get; set; } = DateTime.Now;
+
+        public DateTime ActiveTime { get; set; } = DateTime.Now;
     }
 }

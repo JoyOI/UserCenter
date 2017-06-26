@@ -1,9 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Pomelo.Net.Smtp;
 using Newtonsoft.Json;
 using JoyOI.UserCenter.Models;
@@ -15,7 +20,13 @@ namespace JoyOI.UserCenter.Controllers
         private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
         private const string usernameRegexString = "[A-Za-z0-9_-]{4,32}";
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
-        
+        private static MD5 _md5 = MD5.Create();
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -252,6 +263,52 @@ namespace JoyOI.UserCenter.Controllers
                     x.Details = SR["{0}, welcome to JoyOI!", username];
                     x.HideBack = true;
                 });
+            }
+        }
+
+        [HttpGet]
+        [ResponseCache(Duration = 1000 * 60 * 60 * 24 * 7)]
+        public async Task<IActionResult> GetAvatar(Guid id, int size = 230)
+        {
+            var user = DB.Users
+                .SingleOrDefault(x => x.Id == id);
+            if (user == null)
+            {
+                return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/png", "avatar.png");
+            }
+            try
+            {
+                if (user.AvatarSource == AvatarSource.GravatarPolling)
+                {
+                    var md5_email = string.Join("", _md5.ComputeHash(Encoding.UTF8.GetBytes(user.AvatarData)).Select(x => x.ToString("x2")));
+                    using (var client = new HttpClient() { BaseAddress = new Uri("https://www.gravatar.com") })
+                    {
+                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }");
+                        var bytes = await result.Content.ReadAsByteArrayAsync();
+                        return File(bytes, "image/png", "avatar.png");
+                    }
+                }
+                else if (user.AvatarSource == AvatarSource.WeChatPolling)
+                {
+                    // TODO: support wechat avatar
+                    throw new NotSupportedException();
+                }
+                else // Local storage
+                {
+                    var bytes = (await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(user.AvatarData))).Bytes;
+                    if (bytes.Length > 0)
+                    {
+                        return File(bytes, "image/png", "avatar.png");
+                    }
+                    else
+                    {
+                        return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
+                    }
+                }
+            }
+            catch
+            {
+                return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
             }
         }
     }

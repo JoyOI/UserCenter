@@ -1,0 +1,107 @@
+﻿@model User
+    @{
+        ViewBag.Title = Model.UserName;
+    }
+
+    @section Navigator {
+        <div class="columns">
+            <div class="location-path">
+                / <a href="/">JoyOI</a> /
+            </div>
+            <h1 class="location-current" data-emoji-enabled="">用户资料</h1>
+        </div>
+    }
+
+    <div class="container">
+        <div class="cont-wrap">
+            <div class="grid_9">
+                <div class="profile-content">
+                    <div class="section visible">
+                        <div class="profile-header" style="background: url(/images/@(ViewBag.ImageId).jpg)">
+                            <div class="profile-avatar-outer">
+                                <img src="@Url.Action("GetAvatar", "Account", new { id = Model.Id })" width="120" height="120" class="profile-avatar">
+                            </div>
+                            <div class="profile-body">
+                                <h1>@Model.UserName <small>(@ViewBag.Role)</small></h1>
+                                <p>
+                                    注册于 <span class="time relative" datetime="@Model.RegisterTime.ToTimeStamp()">@Model.RegisterTime</span>,
+                                    最后活动于 <span class="time relative" datetime="@Model.ActiveTime.ToTimeStamp()">@Model.ActiveTime</span>.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="profile-tabs-outer">
+                            <div class="profile-tabs">
+                                <ul class="profile-tabs-ul">
+                                    <li class="profile-tabs-item" onclick="openTab('#tab-profile')">个人资料</li>
+                                    <li class="profile-tabs-item" onclick="openTab('#tab-password')">修改密码</li>
+                                    @if (User.IsInRole("Root"))
+                                    {
+                                        <li class="profile-tabs-item" onclick="openTab('#tab-role')">修改角色</li>
+                                    }
+                                </ul>
+                                <div class="profile-tabs-section" id="tab-profile">
+                                    <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
+                                        <p>
+                                            <label>@SR["Nick name"]</label>
+                                            <input type="text" class="form-control" name="nickname" value="@Model.Nickname" placeholder="@SR["Enter a nick name."]" />
+                                        </p>
+                                        <p>
+                                            <label>@SR["Sex"]</label>
+                                            <select name="sex" class="form-control">
+                                                @foreach(var x in Enum.GetNames(typeof(Sex)))
+                                                { 
+                                                    <!option value="@x" @(Model.Sex.ToString() == x ? "selected" : "")>@SR[x]</!option>
+                                                }
+                                            </select>
+                                        </p>
+                                        <p>
+                                            <label>@SR["School / Organization"]</label>
+                                            <input type="text" class="form-control" name="school" value="@Model.School" placeholder="@SR["Enter your school or organization name."]" />
+                                        </p>
+                                        <p>
+                                            <label>@SR["Address"]</label>
+                                            <input type="text" class="form-control" name="address" value="@Model.Address" placeholder="@SR["For receiving gifts."]" />
+                                        </p>
+                                        <p>
+                                            <input type="submit" class="btn btn-default" />
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid_3">
+                <div class="profile-sidebar">
+                    <div class="profile-statistics">
+                        <div class="profile-statistics-number-outer">
+                            <div class="profile-statistics-number">
+                                <div class="profile-statistics-number-count"></div>
+                                <div class="profile-statistics-number-text">主题</div>
+                            </div>
+                        </div>
+                        <div class="profile-statistics-number-outer">
+                            <div class="profile-statistics-number">
+                                <div class="profile-statistics-number-count"></div>
+                                <div class="profile-statistics-number-text">回复</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-header">
+                        <h1>联系</h1>
+                    </div>
+                    <div class="sidebar-section-body">
+                        <dl>
+                            <dt>电子邮件</dt>
+                            <dd>@Model.Email.Replace("@", "[at]")</dd>
+                        </dl>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

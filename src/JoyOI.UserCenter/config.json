@@ -5,6 +5,7 @@
     },
     "Domain": {
         "Api": "api.uc.joyoi.com",
+        "ApiProtocol": "http",
         "Main": "uc.joyoi.com"
     },
     "Security": {
