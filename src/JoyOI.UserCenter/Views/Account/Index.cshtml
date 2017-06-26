@@ -64,12 +64,24 @@
                                         </p>
                                         <p>
                                             <label>@SR["Avatar Source"]</label>
-                                            <select name="avatarsource" class="form-control">
+                                            <select name="avatarsource" class="form-control" id="lstAvatarResources">
                                                 @foreach (var x in Enum.GetNames(typeof(AvatarSource)))
                                                 {
                                                     <!option value="@x" @(Model.AvatarSource.ToString() == x ? "selected" : "")>@SR[x]</!option>
                                                 }
                                             </select>
+                                        </p>
+                                        <p class="avatar-section" id="uploadAvatar">
+                                            <label>@SR["Upload Avatar"]</label>
+                                            <input type="file" name="avatar" class="form-control" />
+                                        </p>
+                                        <p class="avatar-section" id="gravatar">
+                                            <label>@SR["Gravatar"]</label>
+                                            <input type="text" name="avatardata" class="form-control" placeholder="@SR["Enter your Gravatar email address."]" />
+                                        </p>
+                                        <p class="avatar-section" id="wechatAvatar">
+                                            <label>@SR["Wechat Avatar"]</label>
+                                            <span>@SR["<Wechat Avatar Not Supported>"]</span>
                                         </p>
                                         <p>
                                             <input type="submit" class="btn btn-default" />
