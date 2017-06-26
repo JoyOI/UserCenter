@@ -9,8 +9,11 @@ namespace JoyOI.UserCenter.Controllers
         public override void Prepare()
         {
             base.Prepare();
-            User.Current.ActiveTime = DateTime.Now;
-            DB.SaveChanges();
+            if (User.Current != null)
+            {
+                User.Current.ActiveTime = DateTime.Now;
+                DB.SaveChanges();
+            }
         }
     }
 }
