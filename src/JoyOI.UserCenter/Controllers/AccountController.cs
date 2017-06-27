@@ -8,7 +8,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 using Pomelo.Net.Smtp;
 using Newtonsoft.Json;
 using JoyOI.UserCenter.Models;
@@ -24,7 +26,7 @@ namespace JoyOI.UserCenter.Controllers
         private static MD5 _md5 = MD5.Create();
 
         [HttpGet("[controller]/{id:Guid?}")]
-        public IActionResult Index(Guid? userId)
+        public async Task<IActionResult> Index(Guid? userId)
         {
             ViewBag.ImageId = _random.Next() % 21 + 1;
 
@@ -44,6 +46,8 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 404;
                 });
             }
+
+            ViewBag.Role = (await User.Manager.GetRolesAsync(user)).SingleOrDefault();
 
             return View(user);
         }
@@ -67,6 +71,7 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Login Failed"];
                     x.Details = SR["The username or password is incorrect."];
+                    x.StatusCode = 400;
                 });
             }
 
@@ -82,10 +87,67 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Login Failed"];
                     x.Details = SR["The username or password is incorrect."];
+                    x.StatusCode = 400;
                 });
             }
 
             return RedirectToAction("Index", "Account");
+        }
+
+        [HttpPost]
+        public IActionResult Profile(Guid id, string nickName, string school, Sex sex, AvatarSource avatarSource, IFormFile avatar, string gravatar)
+        {
+            var user = DB.Users.SingleOrDefault(x => x.Id == id);
+            if (user == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Operation Failed"];
+                    x.Details = SR["The user was not found."];
+                    x.StatusCode = 404;
+                });
+            }
+
+            if (avatarSource == AvatarSource.WeChatPolling)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Operation Failed"];
+                    x.Details = SR["WeChat avatar polling has not been supported."];
+                    x.StatusCode = 400;
+                });
+            }
+
+            user.Nickname = nickName;
+            user.School = school;
+            user.Sex = sex;
+            user.AvatarSource = avatarSource;
+            switch (avatarSource)
+            {
+                case AvatarSource.GravatarPolling:
+                    user.AvatarData = gravatar;
+                    break;
+                case AvatarSource.LocalStorage:
+                    var bytes = avatar.ReadAllBytes();
+                    var blob = new Blob
+                    {
+                        Id = Guid.NewGuid(),
+                        Bytes = bytes,
+                        ContentLength = bytes.Length,
+                        FileName = avatar.FileName,
+                        Time = DateTime.Now,
+                        ContentType = avatar.ContentType
+                    };
+                    DB.Blobs.Add(blob);
+                    user.AvatarData = blob.Id.ToString();
+                    break;
+            }
+            DB.SaveChanges();
+            return Prompt(x => 
+            {
+                x.Title = SR["Succeeded"];
+                x.Details = SR["Profile updated successfully."];
+            });
         }
 
         [NonAction]

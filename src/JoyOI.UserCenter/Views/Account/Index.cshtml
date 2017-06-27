@@ -22,7 +22,7 @@
                                 <img src="@Url.Action("GetAvatar", "Account", new { id = Model.Id })" width="120" height="120" class="profile-avatar">
                             </div>
                             <div class="profile-body">
-                                <h1>@Model.UserName <small>(@ViewBag.Role)</small></h1>
+                                <h1>@Model.UserName <small>(@(ViewBag.Role ?? "Member"))</small></h1>
                                 <p>
                                     注册于 <span class="time relative" datetime="@Model.RegisterTime.ToTimeStamp()">@Model.RegisterTime</span>,
                                     最后活动于 <span class="time relative" datetime="@Model.ActiveTime.ToTimeStamp()">@Model.ActiveTime</span>.
@@ -77,14 +77,46 @@
                                         </p>
                                         <p class="avatar-section" id="gravatar">
                                             <label>@SR["Gravatar"]</label>
-                                            <input type="text" name="avatardata" class="form-control" placeholder="@SR["Enter your Gravatar email address."]" />
+                                            <input type="text" name="gravatar" class="form-control" placeholder="@SR["Enter your Gravatar email address."]" />
                                         </p>
                                         <p class="avatar-section" id="wechatAvatar">
                                             <label>@SR["Wechat Avatar"]</label>
                                             <span>@SR["<Wechat Avatar Not Supported>"]</span>
                                         </p>
                                         <p>
-                                            <input type="submit" class="btn btn-default" />
+                                            <input type="submit" class="btn btn-default" value="@SR["Save"]" />
+                                        </p>
+                                    </form>
+                                </div>
+                                <div id="tab-password" class="profile-tabs-section">
+                                    <form asp-action="Password" asp-controller="Account" asp-route-id="@Model.Id">
+                                        @if (!User.IsInRole("Root"))
+                                        {
+                                            <p>
+                                                <label>@SR["Old Password"]</label>
+                                                <input type="password" class="form-control" name="oldpassword" placeholder="@SR["Enter the old password."]" />
+                                            </p>
+                                        }
+                                        <p>
+                                            <label>@SR["New Password"]</label>
+                                            <input type="password" class="form-control" name="newpassword" placeholder="@SR["Enter the new password."]" />
+                                        </p>
+                                        <p>
+                                            <label>@SR["Confirm Password"]</label>
+                                            <input type="password" class="form-control" name="confirm" placeholder="@SR["Enter again the above password"]" />
+                                        </p>
+                                        @if (!User.IsInRole("Root") && Model.Id != User.Current.Id)
+                                        {
+                                            <p>
+                                                <label>@SR["Role"]</label>
+                                                <select class="form-control" name="role">
+                                                    <option>Member</option>
+                                                    <!option @(ViewBag.Role == "Root" ? "selected" : "")>Root</!option>
+                                                </select>
+                                            </p>
+                                        }
+                                        <p>
+                                            <input type="submit" class="btn btn-default" value="@SR["Save"]" />
                                         </p>
                                     </form>
                                 </div>
