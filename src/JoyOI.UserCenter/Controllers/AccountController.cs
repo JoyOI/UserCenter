@@ -41,8 +41,8 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return Prompt(x =>
                 {
-                    x.Title = "User Not Found";
-                    x.Details = "The specified user is not found.";
+                    x.Title = SR["User Not Found"];
+                    x.Details = SR["The specified user is not found."];
                     x.StatusCode = 404;
                 });
             }
@@ -147,6 +147,63 @@ namespace JoyOI.UserCenter.Controllers
             {
                 x.Title = SR["Succeeded"];
                 x.Details = SR["Profile updated successfully."];
+            });
+        }
+
+        public async Task<IActionResult> Password(Guid id, string oldPassword, string newPassword, string confirm, string role)
+        {
+            var user = DB.Users.SingleOrDefault(x => x.Id == id);
+
+            if (user == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["User Not Found"];
+                    x.Details = SR["The specified user is not found."];
+                    x.StatusCode = 404;
+                });
+            }
+
+            if (!User.IsInRole("Root"))
+            {
+                if (!await User.Manager.CheckPasswordAsync(user, oldPassword))
+                {
+                    return Prompt(x =>
+                    {
+                        x.Title = SR["Operation Failed"];
+                        x.Details = SR["The old password is incorrect."];
+                        x.StatusCode = 400;
+                    });
+                }
+            }
+            else if (User.Current.Id != id)
+            {
+                if (role == "Member")
+                {
+                    await User.Manager.RemoveFromRolesAsync(user, await User.Manager.GetRolesAsync(user));
+                }
+                else
+                {
+                    await User.Manager.RemoveFromRolesAsync(user, await User.Manager.GetRolesAsync(user));
+                    await User.Manager.AddToRoleAsync(user, role);
+                }
+            }
+
+            var result = await User.Manager.ChangePasswordAsync(user, oldPassword, newPassword);
+            if (!result.Succeeded)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Operation Failed"];
+                    x.Details = string.Join("\r\n", result.Errors.Select(y => y.Description));
+                    x.StatusCode = 400;
+                });
+            }
+
+            return Prompt(x =>
+            {
+                x.Title = SR["Password Updated"];
+                x.Details = SR["The new password is active now."];
             });
         }
 
