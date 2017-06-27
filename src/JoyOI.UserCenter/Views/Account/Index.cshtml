@@ -8,7 +8,7 @@
             <div class="location-path">
                 / <a href="/">JoyOI</a> /
             </div>
-            <h1 class="location-current" data-emoji-enabled="">用户资料</h1>
+            <h1 class="location-current" data-emoji-enabled="">@SR["Personal Settings"]</h1>
         </div>
     }
 
@@ -32,12 +32,8 @@
                         <div class="profile-tabs-outer">
                             <div class="profile-tabs">
                                 <ul class="profile-tabs-ul">
-                                    <li class="profile-tabs-item" onclick="openTab('#tab-profile')">个人资料</li>
-                                    <li class="profile-tabs-item" onclick="openTab('#tab-password')">修改密码</li>
-                                    @if (User.IsInRole("Root"))
-                                    {
-                                        <li class="profile-tabs-item" onclick="openTab('#tab-role')">修改角色</li>
-                                    }
+                                    <li class="profile-tabs-item" onclick="openTab('#tab-profile')">@SR["Profile"]</li>
+                                    <li class="profile-tabs-item" onclick="openTab('#tab-password')">@SR["Password"]</li>
                                 </ul>
                                 <div class="profile-tabs-section" id="tab-profile">
                                     <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
