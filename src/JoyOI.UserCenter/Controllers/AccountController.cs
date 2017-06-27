@@ -25,6 +25,16 @@ namespace JoyOI.UserCenter.Controllers
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
         private static MD5 _md5 = MD5.Create();
 
+        [NonAction]
+        private IActionResult _Prompt(Action<Prompt> setupPrompt)
+        {
+            var prompt = new Prompt();
+            setupPrompt(prompt);
+            Response.StatusCode = prompt.StatusCode;
+            return View("_Prompt", prompt);
+        }
+
+
         [HttpGet("[controller]/{id:Guid?}")]
         public async Task<IActionResult> Index(Guid? userId)
         {
@@ -59,6 +69,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password)
         {
             var users = DB.Users
@@ -95,6 +106,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Profile(Guid id, string nickName, string school, Sex sex, AvatarSource avatarSource, IFormFile avatar, string gravatar)
         {
             var user = DB.Users.SingleOrDefault(x => x.Id == id);
@@ -150,6 +162,8 @@ namespace JoyOI.UserCenter.Controllers
             });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Password(Guid id, string oldPassword, string newPassword, string confirm, string role)
         {
             var user = DB.Users.SingleOrDefault(x => x.Id == id);
@@ -205,15 +219,6 @@ namespace JoyOI.UserCenter.Controllers
                 x.Title = SR["Password Updated"];
                 x.Details = SR["The new password is active now."];
             });
-        }
-
-        [NonAction]
-        private IActionResult _Prompt(Action<Prompt> setupPrompt)
-        {
-            var prompt = new Prompt();
-            setupPrompt(prompt);
-            Response.StatusCode = prompt.StatusCode;
-            return View("_Prompt", prompt);
         }
 
         [HttpGet("/Register")]
@@ -306,6 +311,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost("/Register/VerifyEmail")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyEmail(
             string email,
             string username,
