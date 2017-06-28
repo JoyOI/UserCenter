@@ -143,37 +143,19 @@
             </div>
 
             <div class="grid_3">
-                <div class="profile-sidebar">
-                    <div class="profile-statistics">
-                        <div class="profile-statistics-number-outer">
-                            <div class="profile-statistics-number">
-                                <div class="profile-statistics-number-count"></div>
-                                <div class="profile-statistics-number-text">主题</div>
-                            </div>
-                        </div>
-                        <div class="profile-statistics-number-outer">
-                            <div class="profile-statistics-number">
-                                <div class="profile-statistics-number-count"></div>
-                                <div class="profile-statistics-number-text">回复</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="sidebar-section">
-                    <a class="sidebar-section-button active">
-                        <i class="fa fa-cog"></i>
+                <div class="sidebar-section sidebar-first">
+                    <a class="sidebar-section-button active" asp-action="Index" asp-controller="Account" asp-route-id="@Model.Id">
+                        <i class="fa fa-user"></i>
+                        <span>@SR["Manage User"]</span>
+                    </a>
+                    <a class="sidebar-section-button" asp-action="Application" asp-controller="Account" asp-route-id="@Model.Id">
+                        <i class="fa fa-chain"></i>
                         <span>@SR["Manage Apps"]</span>
                     </a>
-                    <div class="sidebar-section-header">
-                        <h1>联系</h1>
-                    </div>
-                    <div class="sidebar-section-body">
-                        <dl>
-                            <dt>电子邮件</dt>
-                            <dd>@Model.Email.Replace("@", "[at]")</dd>
-                        </dl>
-                        <div class="clear"></div>
-                    </div>
+                    <a class="sidebar-section-button" asp-action="Authorization" asp-controller="Account" asp-route-id="@Model.Id">
+                        <i class="fa fa-key"></i>
+                        <span>@SR["Authorization"]</span>
+                    </a>
                 </div>
             </div>
         </div>

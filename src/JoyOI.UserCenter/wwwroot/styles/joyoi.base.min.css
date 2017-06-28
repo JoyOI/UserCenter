@@ -15655,7 +15655,6 @@ td i {
 }
 
 .profile-sidebar {
-    margin-top: -30px;
     margin-bottom: 30px
 }
 
@@ -15825,7 +15824,6 @@ td i {
     .sidebar-section-button:hover {
         border-color: #4690d0;
         background: #f4f4f4;
-        color: #fff !important;
     }
 
     .sidebar-section-button.active {
@@ -15833,3 +15831,9 @@ td i {
         background: #ed5f82;
         color: #fff !important;
     }
+
+@media(min-width: 768px) {
+    .sidebar-first {
+        margin-top: -30px;
+    }
+}
