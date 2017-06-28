@@ -34,6 +34,7 @@
                                 <ul class="profile-tabs-ul">
                                     <li class="profile-tabs-item" onclick="openTab('#tab-profile')">@SR["Profile"]</li>
                                     <li class="profile-tabs-item" onclick="openTab('#tab-password')">@SR["Password"]</li>
+                                    <li class="profile-tabs-item" onclick="openTab('#tab-currency')">@SR["Currency"]</li>
                                 </ul>
                                 <div class="profile-tabs-section" id="tab-profile">
                                     <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
@@ -116,6 +117,25 @@
                                         </p>
                                     </form>
                                 </div>
+                                <div id="tab-currency" class="profile-tabs-section">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>@SR["Currency"]</th>
+                                                <th>@SR["Count"]</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach(var x in Model.Extensions.Object)
+                                            {
+                                                <tr>
+                                                    <td>@SR[x.Key]</td>
+                                                    <td>@x.Value</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,6 +160,10 @@
                     </div>
                 </div>
                 <div class="sidebar-section">
+                    <a class="sidebar-section-button active">
+                        <i class="fa fa-cog"></i>
+                        <span>@SR["Manage Apps"]</span>
+                    </a>
                     <div class="sidebar-section-header">
                         <h1>联系</h1>
                     </div>

@@ -33,8 +33,7 @@ namespace JoyOI.UserCenter.Controllers
             Response.StatusCode = prompt.StatusCode;
             return View("_Prompt", prompt);
         }
-
-
+        
         [HttpGet("[controller]/{id:Guid?}")]
         public async Task<IActionResult> Index(Guid? userId)
         {
