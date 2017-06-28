@@ -1,23 +1,18 @@
 ﻿<div id="navbar" class="navbar-collapse collapse">
 
     <ul class="nav navbar-nav navbar-left">
-        <li class="home"><a asp-action="Index" asp-controller="Home">首页</a></li>
+        <li class="home"><a asp-action="Index" asp-controller="Home">@SR["Home"]</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
         @if (User.IsSignedIn())
         {
-        <li class="center"><a asp-action="Profile" asp-controller="Account" asp-route-id="@User.Current.UserName">会员中心</a></li>
-        @if (User.AnyRoles("Root"))
-        {
-        <li class="center"><a asp-action="Forum" asp-controller="Admin" asp-route-id="@User.Current.Id">板块管理</a></li>
-        }
-        <li class="logout"><a href="javascript:$('#frmLogout').submit()">注销</a></li>
-        <form id="frmLogout" asp-action="Logout" asp-controller="Account" method="post"></form>
+            <li class="logout"><a href="javascript:$('#frmLogout').submit()">@SR["Log out"]</a></li>
+            <form id="frmLogout" asp-action="Logout" asp-controller="Account" method="post"></form>
         }
         else
         {
-        <li class="login"><a asp-action="Login" asp-controller="Account">登录</a></li>
-        <li class="register"><a asp-action="Register" asp-controller="Account">注册</a></li>
+        <li class="login"><a asp-action="Login" asp-controller="Account">@SR["Log in"]</a></li>
+        <li class="register"><a asp-action="Register" asp-controller="Account">@SR["Register"]</a></li>
         }
     </ul>
 </div>
