@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -72,7 +72,7 @@ namespace JoyOI.UserCenter
                 x.Password.RequireUppercase = false;
                 x.User.AllowedUserNameCharacters = null;
             })
-                .AddEntityFrameworkStores<UserCenterContext, Guid>()
+                .AddEntityFrameworkStores<UserCenterContext>()
                 .AddDefaultTokenProviders();
 
             services.AddContextAccessor();
@@ -96,7 +96,7 @@ namespace JoyOI.UserCenter
             app.UseWebSockets();
             app.UseSignalR();
             app.UseBlobStorage("/js/jquery.pomelo.fileupload.js");
-            app.UseIdentity();
+            app.UseAuthentication();
             app.MapWhen(x => x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));
             app.MapWhen(x => !x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvcWithDefaultRoute());
             app.ApplicationServices.GetRequiredService<UserCenterContext>().InitializeAsync(app.ApplicationServices);
