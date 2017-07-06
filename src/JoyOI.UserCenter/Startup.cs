@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Redis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.AspNetCore.Localization;
 using Newtonsoft.Json;
 using StackExchange.Redis;
+using JoyOI.UserCenter.Hubs;
 using JoyOI.UserCenter.Models;
 
 namespace JoyOI.UserCenter
@@ -34,23 +37,17 @@ namespace JoyOI.UserCenter
 
             services.AddAesCrypto(Config["Security:PrivateKey"], Config["Security:IV"]);
 
-            services.AddRedis();
-
             services.AddMvc();
 
             services.AddBlobStorage()
                .AddEntityFrameworkStorage<UserCenterContext>();
 
-            services.AddRedis(x =>
-            {
-                x.ConnectionString = Config["Host:Redis"];
-                x.Database = 1;
-                x.EventKey = "HD_QUICK_RESPONSE_SIGNALR_INSTANCE";
-            })
-               .AddSignalR(options =>
-               {
-                   options.Hubs.EnableDetailedErrors = true;
-               });
+            services.AddSignalR()
+                .AddRedis(x =>
+                {
+                    x.Options.EndPoints.Add("localhost", 6379);
+                    x.Options.DefaultDatabase = 2;
+                });
 
             services.AddSmartUser<User, Guid>();
 
@@ -94,7 +91,7 @@ namespace JoyOI.UserCenter
             app.UseStaticFiles();
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
-            app.UseSignalR();
+            app.UseSignalR(x => x.MapHub<MessageHub>("hubs"));
             app.UseBlobStorage("/js/jquery.pomelo.fileupload.js");
             app.UseAuthentication();
             app.MapWhen(x => x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));

@@ -228,7 +228,7 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost("/Register")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(
+        public async Task<IActionResult> Register(
             string email,
             [FromHeader] string Referer,
             [FromServices] IEmailSender EmailSender,
