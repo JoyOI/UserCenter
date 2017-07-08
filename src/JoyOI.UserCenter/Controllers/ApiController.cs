@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
@@ -121,7 +122,7 @@ namespace JoyOI.UserCenter.Controllers
         /// <param name="Password"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Authorize(Guid id, string CallBackUrl, string Username, string Password)
+        public async Task<IActionResult> Authorize(Guid id, string CallBackUrl, string Username, string Password, CancellationToken token)
         {
             if (Application == null)
             {
@@ -163,8 +164,8 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                var user = DB.Users.Single(x => x.UserName == Username);
-                var openId = DB.OpenIds.SingleOrDefault(x => x.UserId == user.Id);
+                var user = await DB.Users.SingleAsync(x => x.UserName == Username, token);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.UserId == user.Id, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -186,7 +187,7 @@ namespace JoyOI.UserCenter.Controllers
                         openId.Code = _generateString(64);
                     }
                 }
-                DB.SaveChanges();
+                await DB.SaveChangesAsync(token);
                 return Redirect(_generateCallBackUrl(CallBackUrl, openId.Code));
             }
         }
@@ -195,7 +196,8 @@ namespace JoyOI.UserCenter.Controllers
             Guid id, 
             string username, 
             string password, 
-            string secret)
+            string secret,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -212,7 +214,7 @@ namespace JoyOI.UserCenter.Controllers
             else
             {
                 var user = await UserManager.FindByNameAsync(username);
-                var openId = DB.OpenIds.SingleOrDefault(x => x.ApplicationId == id && x.UserId == user.Id);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -232,7 +234,7 @@ namespace JoyOI.UserCenter.Controllers
                     openId.Code = null;
                 }
                 
-                await DB.SaveChangesAsync();
+                await DB.SaveChangesAsync(token);
 
                 return ApiResult(new
                 {
@@ -243,7 +245,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TrustedAuthorize(Guid id, string secret, string username, string password)
+        public async Task<IActionResult> TrustedAuthorize(Guid id, string secret, string username, string password, CancellationToken token)
         {
             if (Application == null)
             {
@@ -260,7 +262,7 @@ namespace JoyOI.UserCenter.Controllers
             else
             {
                 var user = await UserManager.FindByNameAsync(username);
-                var openId = DB.OpenIds.SingleOrDefault(x => x.ApplicationId == id && x.UserId == user.Id);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -280,7 +282,7 @@ namespace JoyOI.UserCenter.Controllers
                     openId.Code = null;
                 }
 
-                await DB.SaveChangesAsync();
+                await DB.SaveChangesAsync(token);
 
                 return ApiResult(new
                 {
@@ -293,7 +295,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetUserProfile(Guid id, string secret, Guid openId, string accessToken)
+        public async Task<IActionResult> GetUserProfile(Guid id, string secret, Guid openId, string accessToken, CancellationToken token)
         {
             if (Application == null)
             {
@@ -305,9 +307,9 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                var _openId = DB.OpenIds
+                var _openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .SingleOrDefault(x => x.Id == openId);
+                    .SingleOrDefaultAsync(x => x.Id == openId, token);
                 if (_openId == null)
                 {
                     return ApiResult(SR["The open id is not found.", 404]);
@@ -331,12 +333,13 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetExtensionCoin(
+        public async Task<IActionResult> GetExtensionCoin(
             Guid id, 
             string field, 
             string accessToken, 
             Guid openId,
-            string secret)
+            string secret,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -350,15 +353,15 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == openId))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
-                var _openId = DB.OpenIds
+                var _openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == openId);
+                    .SingleAsync(x => x.Id == openId, token);
 
                 if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
@@ -378,7 +381,8 @@ namespace JoyOI.UserCenter.Controllers
             long value,
             string accessToken,
             Guid openId,
-            string secret)
+            string secret,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -392,15 +396,15 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == openId))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
-                var _openId = DB.OpenIds
+                var _openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == openId);
+                    .SingleAsync(x => x.Id == openId, token);
                 
                 if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
@@ -414,7 +418,7 @@ namespace JoyOI.UserCenter.Controllers
                     var result = await DB.Users
                         .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
-                        .UpdateAsync();
+                        .UpdateAsync(token);
 
                     if (result == 0)
                     {
@@ -435,7 +439,8 @@ namespace JoyOI.UserCenter.Controllers
             long value,
             string accessToken,
             Guid openId,
-            string secret)
+            string secret,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -449,16 +454,16 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == openId))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
 updateExtensionCoin:
-                var _openId = DB.OpenIds
+                var _openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == openId);
+                    .SingleAsync(x => x.Id == openId, token);
 
                 if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
@@ -472,7 +477,7 @@ updateExtensionCoin:
                     var result = await DB.Users
                         .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
-                        .UpdateAsync();
+                        .UpdateAsync(token);
 
                     if (result == 0)
                     {
@@ -493,7 +498,8 @@ updateExtensionCoin:
             long value,
             string accessToken,
             Guid OpenId,
-            string secret)
+            string secret,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -514,9 +520,9 @@ updateExtensionCoin:
             else
             {
                 updateExtensionCoin:
-                var openId = DB.OpenIds
+                var openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == OpenId);
+                    .SingleAsync(x => x.Id == OpenId, token);
 
                 if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
                 {
@@ -530,7 +536,7 @@ updateExtensionCoin:
                     var result = await DB.Users
                         .Where(x => x.Id == openId.UserId && x.ConcurrencyStamp == openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(openId.User.Extensions)
-                        .UpdateAsync();
+                        .UpdateAsync(token);
 
                     if (result == 0)
                     {
@@ -546,7 +552,7 @@ updateExtensionCoin:
 
         [HttpGet]
         [ResponseCache(Duration = 1000 * 60 * 60 * 24 * 7)]
-        public async Task<IActionResult> GetAvatar(Guid id, int size = 230)
+        public async Task<IActionResult> GetAvatar(Guid id, CancellationToken token, int size = 230)
         {
             var openId = DB.OpenIds
                 .Include(x => x.User)
@@ -562,7 +568,7 @@ updateExtensionCoin:
                     var md5_email = string.Join("", _md5.ComputeHash(Encoding.UTF8.GetBytes(openId.User.AvatarData)).Select(x => x.ToString("x2")));
                     using (var client = new HttpClient() { BaseAddress = new Uri("https://www.gravatar.com") })
                     {
-                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }");
+                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }", token);
                         var bytes = await result.Content.ReadAsByteArrayAsync();
                         return File(bytes, "image/png", "avatar.png");
                     }
@@ -574,7 +580,7 @@ updateExtensionCoin:
                 }
                 else // Local storage
                 {
-                    var bytes = (await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(openId.User.AvatarData))).Bytes;
+                    var bytes = (await DB.Blobs.SingleAsync(x => x.Id == Guid.Parse(openId.User.AvatarData), token)).Bytes;
                     if (bytes.Length > 0)
                     {
                         return File(bytes, "image/png", "avatar.png");
@@ -591,11 +597,12 @@ updateExtensionCoin:
             }
         }
 
-        public IActionResult GetUsername(
+        public async Task<IActionResult> GetUsername(
             Guid id,
             string secret,
             Guid openId,
-            string accessToken)
+            string accessToken,
+            CancellationToken token)
         {
             if (Application == null)
             {
@@ -609,15 +616,15 @@ updateExtensionCoin:
             {
                 return ApiResult(SR["This application does not have the permission to access usernames."]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == openId))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
             else
             {
-                var _openId = DB.OpenIds
+                var _openId = await DB.OpenIds
                     .Include(x => x.User)
-                    .Single(x => x.Id == openId);
+                    .SingleAsync(x => x.Id == openId, token);
 
                 if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {

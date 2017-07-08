@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -34,8 +35,8 @@ namespace JoyOI.UserCenter.Controllers
             return View("_Prompt", prompt);
         }
         
-        [HttpGet("[controller]/{id:Guid?}")]
-        public async Task<IActionResult> Index(Guid? userId)
+        [HttpGet("[controller]/{userId:Guid?}")]
+        public async Task<IActionResult> Index(Guid? userId, CancellationToken token)
         {
             ViewBag.ImageId = _random.Next() % 21 + 1;
 
@@ -44,7 +45,8 @@ namespace JoyOI.UserCenter.Controllers
                 userId = User.Current.Id;
             }
 
-            var user = DB.Users.SingleOrDefault(x => x.Id == userId.Value);
+            var user = await DB.Users
+                .SingleOrDefaultAsync(x => x.Id == userId.Value, token);
 
             if (user == null)
             {
@@ -69,7 +71,7 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password, CancellationToken token)
         {
             var users = DB.Users
                 .Where(x => x.UserName == username || x.Email == username)
@@ -106,9 +108,18 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Profile(Guid id, string nickName, string school, Sex sex, AvatarSource avatarSource, IFormFile avatar, string gravatar)
+        public async Task<IActionResult> Profile(
+            Guid id, 
+            string nickName, 
+            string school, 
+            Sex sex, 
+            AvatarSource avatarSource,
+            IFormFile avatar, 
+            string gravatar,
+            CancellationToken token)
         {
-            var user = DB.Users.SingleOrDefault(x => x.Id == id);
+            var user = await DB.Users
+                .SingleOrDefaultAsync(x => x.Id == id, token);
             if (user == null)
             {
                 return Prompt(x =>
@@ -153,7 +164,7 @@ namespace JoyOI.UserCenter.Controllers
                     user.AvatarData = blob.Id.ToString();
                     break;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync(token);
             return Prompt(x => 
             {
                 x.Title = SR["Succeeded"];
@@ -163,9 +174,10 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Password(Guid id, string oldPassword, string newPassword, string confirm, string role)
+        public async Task<IActionResult> Password(Guid id, string oldPassword, string newPassword, string confirm, string role, CancellationToken token)
         {
-            var user = DB.Users.SingleOrDefault(x => x.Id == id);
+            var user = await DB.Users
+                .SingleOrDefaultAsync(x => x.Id == id, token);
 
             if (user == null)
             {
@@ -232,9 +244,10 @@ namespace JoyOI.UserCenter.Controllers
             string email,
             [FromHeader] string Referer,
             [FromServices] IEmailSender EmailSender,
-            [FromServices] AesCrypto Aes)
+            [FromServices] AesCrypto Aes,
+            CancellationToken token)
         {
-            if (string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email)) 
             {
                 return _Prompt(x =>
                 {
@@ -252,7 +265,7 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
-            else if (DB.Users.Any(x => x.Email == email))
+            else if (await DB.Users.AnyAsync(x => x.Email == email, token))
             {
                 return _Prompt(x =>
                 {
@@ -318,7 +331,8 @@ namespace JoyOI.UserCenter.Controllers
             string confirm,
             string nickname,
             string referer,
-            [FromServices] AesCrypto Aes)
+            [FromServices] AesCrypto Aes,
+            CancellationToken token)
         {
             string parsedEmail = null;
             try
@@ -336,7 +350,7 @@ namespace JoyOI.UserCenter.Controllers
                 });
             }
 
-            if (DB.Users.Any(x => x.UserName == username))
+            if (await DB.Users.AnyAsync(x => x.UserName == username, token))
             {
                 return _Prompt(x =>
                 {
@@ -363,7 +377,7 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
-            else if (DB.Users.Any(x => x.Email == parsedEmail))
+            else if (await DB.Users.AnyAsync(x => x.Email == parsedEmail, token))
             {
                 return _Prompt(x =>
                 {
@@ -413,7 +427,7 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpGet]
         [ResponseCache(Duration = 1000 * 60 * 60 * 24 * 7)]
-        public async Task<IActionResult> GetAvatar(Guid id, int size = 230)
+        public async Task<IActionResult> GetAvatar(Guid id, CancellationToken token, int size = 230)
         {
             var user = DB.Users
                 .SingleOrDefault(x => x.Id == id);
@@ -428,7 +442,7 @@ namespace JoyOI.UserCenter.Controllers
                     var md5_email = string.Join("", _md5.ComputeHash(Encoding.UTF8.GetBytes(user.AvatarData)).Select(x => x.ToString("x2")));
                     using (var client = new HttpClient() { BaseAddress = new Uri("https://www.gravatar.com") })
                     {
-                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }");
+                        var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }", token);
                         var bytes = await result.Content.ReadAsByteArrayAsync();
                         return File(bytes, "image/png", "avatar.png");
                     }
@@ -455,6 +469,21 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Application(Guid? id, CancellationToken token)
+        {
+            if (!id.HasValue)
+            {
+                id = User.Current.Id;
+            }
+
+            var applications = await DB.OpenIds
+                .Where(x => x.UserId == id)
+                .ToListAsync(token);
+
+            return View(applications);
         }
     }
 }
