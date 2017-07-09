@@ -37,8 +37,6 @@ namespace JoyOI.UserCenter.Models
 
         public JsonObject<List<string>> ExtensionPermissions { get; set; } = "[]";
 
-        public JsonObject<List<Guid>> Owners { get; set; } = "[]";
-
         [ConcurrencyCheck]
         public Guid ConcurrencyStamp { get; set; }
     }

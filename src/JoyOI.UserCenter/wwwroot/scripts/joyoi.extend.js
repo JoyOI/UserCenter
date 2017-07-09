@@ -17,3 +17,8 @@ $(document).ready(function () {
         changeAvatarSource();
     });
 });
+
+function accountChangeApplicationAuthorization(openId, isDisabled)
+{
+    $('#frmAuthorization').submit();
+}

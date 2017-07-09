@@ -165,7 +165,7 @@ namespace JoyOI.UserCenter.Controllers
             else
             {
                 var user = await DB.Users.SingleAsync(x => x.UserName == Username, token);
-                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.UserId == user.Id && !x.IsInactive, token);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.UserId == user.Id && !x.Disabled, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -214,7 +214,7 @@ namespace JoyOI.UserCenter.Controllers
             else
             {
                 var user = await UserManager.FindByNameAsync(username);
-                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id && !x.IsInactive, token);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id && !x.Disabled, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -262,7 +262,7 @@ namespace JoyOI.UserCenter.Controllers
             else
             {
                 var user = await UserManager.FindByNameAsync(username);
-                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id && !x.IsInactive, token);
+                var openId = await DB.OpenIds.SingleOrDefaultAsync(x => x.ApplicationId == id && x.UserId == user.Id && !x.Disabled, token);
                 if (openId == null)
                 {
                     openId = new OpenId
@@ -353,7 +353,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.IsInactive, token))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.Disabled, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
@@ -396,7 +396,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.IsInactive, token))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.Disabled, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
@@ -454,7 +454,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.IsInactive, token))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.Disabled, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
@@ -513,7 +513,7 @@ updateExtensionCoin:
             {
                 return ApiResult(SR["This application does not have the permission to access this field"]);
             }
-            else if (!DB.OpenIds.Any(x => x.Id == OpenId && !x.IsInactive))
+            else if (!DB.OpenIds.Any(x => x.Id == OpenId && !x.Disabled))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }
@@ -616,7 +616,7 @@ updateExtensionCoin:
             {
                 return ApiResult(SR["This application does not have the permission to access usernames."]);
             }
-            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.IsInactive, token))
+            else if (!await DB.OpenIds.AnyAsync(x => x.Id == openId && !x.Disabled, token))
             {
                 return ApiResult(SR["The user is not found."], 404);
             }

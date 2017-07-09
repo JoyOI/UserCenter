@@ -26,6 +26,6 @@ namespace JoyOI.UserCenter.Models
 
         public DateTime ExpireTime { get; set; }
 
-        public bool IsInactive { get; set; }
+        public bool Disabled { get; set; }
     }
 }

@@ -16,6 +16,7 @@ using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 using Pomelo.Net.Smtp;
 using Newtonsoft.Json;
 using JoyOI.UserCenter.Models;
+using JoyOI.UserCenter.Models.ViewModels;
 
 namespace JoyOI.UserCenter.Controllers
 {
@@ -497,7 +498,7 @@ namespace JoyOI.UserCenter.Controllers
             var applications = await DB.OpenIds
                 .Include(x => x.Application)
                 .Where(x => x.UserId == id)
-                .OrderBy(x => x.IsInactive)
+                .OrderBy(x => x.Disabled)
                 .ToListAsync(token);
 
             return View(applications);
@@ -506,7 +507,7 @@ namespace JoyOI.UserCenter.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Authorization(Guid? id, Guid openId, bool isInactive, CancellationToken token)
+        public async Task<IActionResult> Authorization(Guid? id, Guid openId, bool disabled, CancellationToken token)
         {
             if (!id.HasValue)
             {
@@ -515,7 +516,17 @@ namespace JoyOI.UserCenter.Controllers
 
             var _openId = await DB.OpenIds
                 .Include(x => x.Application)
-                .SingleAsync(x => x.Id == openId, token);
+                .SingleOrDefaultAsync(x => x.Id == openId, token);
+
+            if (_openId == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Open ID Not Found"];
+                    x.Details = SR["Please check the open id."];
+                    x.StatusCode = 404;
+                });
+            }
 
             if (!User.IsInRole("Root") && User.Current.Id != id.Value)
             {
@@ -537,14 +548,54 @@ namespace JoyOI.UserCenter.Controllers
                 });
             }
 
-            _openId.IsInactive = isInactive;
+            _openId.Disabled = disabled;
             await DB.SaveChangesAsync(token);
 
             return Prompt(x =>
             {
                 x.Title = SR["Operation Succeeded"];
-                x.Details = SR["The {0} has been {1} successfully.", _openId.Application.Name, isInactive ? SR["inactived"] : SR["reactived"]];
+                x.Details = SR["The {0} has been {1} successfully.", _openId.Application.Name, disabled ? SR["inactived"] : SR["reactived"]];
             });
         }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Application(Guid? id, CancellationToken token)
+        {
+            if (!id.HasValue)
+            {
+                id = User.Current.Id;
+            }
+
+            var applicationClaims = await DB.UserClaims
+                .Where(x => x.UserId == id.Value)
+                .Where(x => x.ClaimType == "OwnedApplication" || x.ClaimType == "SuperviseApplication")
+                .Select(x => new { Role = x.ClaimType, ApplicationId = Guid.Parse(x.ClaimValue) })
+                .ToListAsync(token);
+
+            var ids = applicationClaims.Select(x => x.ApplicationId);
+
+            return View(await DB.Applications
+                .Where(x => ids.Contains(x.Id))
+                .Join(applicationClaims, x => x.Id, x => x.ApplicationId, (x,y) => new ApplicationViewModel
+                {
+                    Name = x.Name,
+                    IconId = x.IconId,
+                    Description = x.Description,
+                    Id = x.Id,
+                    Role = y.Role,
+                    Type = x.Type,
+                    ExtensionPermissions = x.ExtensionPermissions
+                })
+                .ToListAsync(token));
+        }
+
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Application()
+        //{
+
+        //}
     }
 }

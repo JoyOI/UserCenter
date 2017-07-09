@@ -26,13 +26,13 @@
                                 <div class="application-item-title">@x.Application.Name</div>
                                 <div class="application-item-details">@x.Application.Description</div>
                             </div>
-                            @if (x.IsInactive)
+                            @if (x.Disabled)
                             {
-                                <a class="application-item-btn blue">@SR["Reactive"]</a>
+                                <a class="application-item-btn blue" href="javascript:accountChangeApplicationAuthorization('@x.Id', true);">@SR["Disable"]</a>
                             }
                             else
                             {
-                                <a class="application-item-btn">@SR["Disable"]</a>
+                                <a class="application-item-btn" href="javascript:accountChangeApplicationAuthorization('@x.Id', false);">@SR["Enable"]</a>
                             }
                             <div class="clear"></div>
                         </div>
@@ -48,3 +48,8 @@
         @await Html.PartialAsync("_Sidebar")
     </div>
 </div>
+
+<form asp-action="Authorization" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]" id="frmAuthorization">
+    <input type="hidden" id="hidOpenId" name="openId" />
+    <input type="hidden" id="hidDisabled" name="disabled" />
+</form>

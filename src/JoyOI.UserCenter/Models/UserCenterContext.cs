@@ -85,7 +85,7 @@ namespace JoyOI.UserCenter.Models
                 e.HasIndex(x => x.AccessToken);
                 e.HasIndex(x => x.ExpireTime);
                 e.HasIndex(x => x.Code);
-                e.HasIndex(x => x.IsInactive);
+                e.HasIndex(x => x.Disabled);
             });
 
             builder.Entity<RelationShip>(e =>
