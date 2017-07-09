@@ -20,7 +20,7 @@
                 {
                     @foreach (var x in Model)
                     {
-                        <div class="application-item">
+                        <div class="application-item @(x.Disabled ? "" : "highlight")">
                             <img src="~/blob/download/@x.Application.IconId" class="application-item-icon" />
                             <div class="application-item-content">
                                 <div class="application-item-title">@x.Application.Name</div>
