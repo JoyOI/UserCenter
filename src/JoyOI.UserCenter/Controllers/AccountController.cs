@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
@@ -35,6 +36,7 @@ namespace JoyOI.UserCenter.Controllers
             return View("_Prompt", prompt);
         }
         
+        [Authorize]
         [HttpGet("[controller]/{userId:Guid?}")]
         public async Task<IActionResult> Index(Guid? userId, CancellationToken token)
         {
@@ -107,6 +109,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(
             Guid id, 
@@ -173,6 +176,7 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Password(Guid id, string oldPassword, string newPassword, string confirm, string role, CancellationToken token)
         {
@@ -472,7 +476,8 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Application(Guid? id, CancellationToken token)
+        [Authorize]
+        public async Task<IActionResult> Authorization(Guid? id, CancellationToken token)
         {
             if (!id.HasValue)
             {
@@ -496,6 +501,50 @@ namespace JoyOI.UserCenter.Controllers
                 .ToListAsync(token);
 
             return View(applications);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Authorization(Guid? id, Guid openId, bool isInactive, CancellationToken token)
+        {
+            if (!id.HasValue)
+            {
+                id = User.Current.Id;
+            }
+
+            var _openId = await DB.OpenIds
+                .Include(x => x.Application)
+                .SingleAsync(x => x.Id == openId, token);
+
+            if (!User.IsInRole("Root") && User.Current.Id != id.Value)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["No permission"];
+                    x.Details = SR["You do not have the permission to access this resource."];
+                    x.StatusCode = 401;
+                });
+            }
+
+            if (_openId.Application.Type == ApplicationType.Official)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Invalid Operation"];
+                    x.Details = SR["You cannot modify the official application active status."];
+                    x.StatusCode = 403;
+                });
+            }
+
+            _openId.IsInactive = isInactive;
+            await DB.SaveChangesAsync(token);
+
+            return Prompt(x =>
+            {
+                x.Title = SR["Operation Succeeded"];
+                x.Details = SR["The {0} has been {1} successfully.", _openId.Application.Name, isInactive ? SR["inactived"] : SR["reactived"]];
+            });
         }
     }
 }

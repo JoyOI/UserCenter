@@ -8,13 +8,13 @@
             <i class="fa fa-user"></i>
             <span>@SR["Manage User"]</span>
         </a>
-        <a class="sidebar-section-button @(ViewContext.RouteData.Values["action"].ToString() == "Application" ? "active" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
-            <i class="fa fa-chain"></i>
-            <span>@SR["Manage Apps"]</span>
-        </a>
         <a class="sidebar-section-button @(ViewContext.RouteData.Values["action"].ToString() == "Authorization" ? "active" : "")" asp-action="Authorization" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
             <i class="fa fa-key"></i>
             <span>@SR["Authorization"]</span>
+        </a>
+        <a class="sidebar-section-button @(ViewContext.RouteData.Values["action"].ToString() == "Application" ? "active" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+            <i class="fa fa-chain"></i>
+            <span>@SR["Manage Apps"]</span>
         </a>
     </div>
 </div>
