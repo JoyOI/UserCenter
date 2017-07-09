@@ -490,7 +490,9 @@ namespace JoyOI.UserCenter.Controllers
             }
 
             var applications = await DB.OpenIds
+                .Include(x => x.Application)
                 .Where(x => x.UserId == id)
+                .OrderBy(x => x.IsInactive)
                 .ToListAsync(token);
 
             return View(applications);

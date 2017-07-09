@@ -25,5 +25,7 @@ namespace JoyOI.UserCenter.Models
         public virtual Application Application { get; set; }
 
         public DateTime ExpireTime { get; set; }
+
+        public bool IsInactive { get; set; }
     }
 }
