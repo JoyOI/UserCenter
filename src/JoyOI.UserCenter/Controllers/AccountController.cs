@@ -568,15 +568,25 @@ namespace JoyOI.UserCenter.Controllers
                 id = User.Current.Id;
             }
 
-            var applicationClaims = await DB.UserClaims
-                .Where(x => x.UserId == id.Value)
-                .Where(x => x.ClaimType == "OwnedApplication" || x.ClaimType == "SuperviseApplication")
-                .Select(x => new { Role = x.ClaimType, ApplicationId = Guid.Parse(x.ClaimValue) })
-                .ToListAsync(token);
+            IEnumerable<ApplicationRoleViewModel> applicationClaims;
+            if (!User.IsInRole("Root"))
+            {
+                applicationClaims = await DB.UserClaims
+                    .Where(x => x.UserId == id.Value)
+                    .Where(x => x.ClaimType == "OwnedApplication" || x.ClaimType == "SuperviseApplication")
+                    .Select(x => new ApplicationRoleViewModel { Role = x.ClaimType, ApplicationId = Guid.Parse(x.ClaimValue) })
+                    .ToListAsync(token);
+            }
+            else
+            {
+                applicationClaims = await DB.Applications
+                    .Select(x => new ApplicationRoleViewModel { Role = "Root", ApplicationId = x.Id })
+                    .ToListAsync(token);
+            }
 
             var ids = applicationClaims.Select(x => x.ApplicationId);
 
-            return View(await DB.Applications
+            return PagedView(await DB.Applications
                 .Where(x => ids.Contains(x.Id))
                 .Join(applicationClaims, x => x.Id, x => x.ApplicationId, (x,y) => new ApplicationViewModel
                 {
@@ -588,14 +598,14 @@ namespace JoyOI.UserCenter.Controllers
                     Type = x.Type,
                     ExtensionPermissions = x.ExtensionPermissions
                 })
-                .ToListAsync(token));
+                .ToListAsync(token), 20);
         }
 
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> ApplicationManager(Guid id, CancellationToken token)
         {
-            var application = DB.Applications.SingleOrDefaultAsync(x => x.Id == id, token);
+            var application = await DB.Applications.SingleOrDefaultAsync(x => x.Id == id, token);
 
             if (application == null)
             {
@@ -696,5 +706,14 @@ namespace JoyOI.UserCenter.Controllers
         //{
 
         //}
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await SignInManager.SignOutAsync();
+            return RedirectToAction("Login");
+        }
     }
 }

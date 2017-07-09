@@ -52,12 +52,12 @@
 .application-item-btn {
     float: right;
     border-radius: 20px;
-    margin: 14px 0;
     padding: 2px 10px;
     border: 2px solid #ff8080;
     color: #ff8080;
     cursor: pointer;
     transition: all 0.2s linear;
+    margin: 14px 5px;
 }
 
     .application-item-btn:hover {
@@ -74,6 +74,16 @@
             background: #7baefa;
             color: #fff;
         }
+
+    .application-item-btn.green {
+        border: 2px solid #16b368;
+        color: #16b368;
+    }
+
+        .application-item-btn.green:hover {
+            background: #16b368;
+            color: #fff;
+        }
     
 .clear {
     clear: both;
@@ -81,4 +91,8 @@
 
 .application-no-result {
     padding: 20px 25px;
+}
+
+.application-paging-outer {
+    margin-top: 30px;
 }

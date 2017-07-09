@@ -26,12 +26,12 @@
                                 <div class="application-item-title">@x.Name</div>
                                 <div class="application-item-details">@x.Description</div>
                             </div>
-                            @if (x.Role == "OwnedApplication")
+                            @if (x.Role == "OwnedApplication" || User.IsInRole("Root"))
                             {
-                                <a class="application-item-btn" asp-action="ApplicationManager" asp-route-id="@x.Id">@SR["Managers"]</a>
+                                <a class="application-item-btn blue" asp-action="ApplicationManager" asp-route-id="@x.Id">@SR["Managers"]</a>
                                 <a class="application-item-btn" asp-action="ApplicationSecret" asp-route-id="@x.Id">@SR["Secret"]</a>
                             }
-                            <a class="application-item-btn" asp-action="ApplicationCustomers" asp-route-id="@x.Id">@SR["Customers"]</a>
+                            <a class="application-item-btn green" asp-action="ApplicationCustomer" asp-route-id="@x.Id">@SR["Customers"]</a>
                             <div class="clear"></div>
                         </div>
                     }
@@ -40,6 +40,10 @@
                 {
                     <div class="application-no-result">@SR["No application found."]</div>
                 }
+            </div>
+
+            <div class="application-paging-outer">
+                @Html.Paging()
             </div>
         </div>
 
