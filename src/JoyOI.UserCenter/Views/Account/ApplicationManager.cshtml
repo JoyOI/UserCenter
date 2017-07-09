@@ -1,0 +1,41 @@
+﻿@model Application
+@{
+    ViewBag.Title = SR["Application Managers"];
+    var Managers = (IEnumerable<ApplicationManagerViewModel>)ViewBag.Managers;
+}
+
+@section Navigator {
+    <div class="columns">
+        <div class="location-path">
+            / <a href="/">JoyOI</a> / <a>@Model.Name</a> /
+        </div>
+        <h1 class="location-current" data-emoji-enabled="">@SR["Managers"]</h1>
+    </div>
+}
+
+<div class="container">
+    <div class="cont-wrap">
+        <div class="grid_9">
+            <div class="application-outer">
+                @foreach (var x in Managers)
+                {
+                    <div class="application-item">
+                        <img src="@Url.Action("GetAvatar", new { id = x.UserId })" class="application-item-icon" />
+                        <div class="application-item-content">
+                            <div class="application-item-title">@x.Nickname (@x.Role)</div>
+                            <div class="application-item-details">@x.Username</div>
+                        </div>
+                        <a class="application-item-btn" href="javascript:removeApplicationManager('@x.UserId');">@SR["Remove"]</a>
+                        <div class="clear"></div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @await Html.PartialAsync("_Sidebar")
+    </div>
+</div>
+
+<form asp-action="ApplicationManagerRemove" id="frmApplicationManagerRemove" asp-route-id="@Model.Id">
+    <input type="hidden" id="hidUserId" name="userid" />
+</form>

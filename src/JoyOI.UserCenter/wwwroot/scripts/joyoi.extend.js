@@ -18,7 +18,21 @@ $(document).ready(function () {
     });
 });
 
-function accountChangeApplicationAuthorization(openId, isDisabled)
+function accountChangeApplicationAuthorization(openId, disabled)
 {
-    $('#frmAuthorization').submit();
+    if (confirm(SR("Are you sure you want to forbid this application to access your account?")))
+    {
+        $('#hidOpenId').val(openId);
+        $('#hidDisabled').val(disabled)
+        $('#frmAuthorization').submit();
+    }
+}
+
+function removeApplicationManager(uid)
+{
+    if (confirm(SR("Are you sure you want to remove this manager?")))
+    {
+        $('#hidUserId').val(uid);
+        $('#frmApplicationManagerRemove').submit();
+    }
 }

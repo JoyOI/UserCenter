@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -588,6 +589,104 @@ namespace JoyOI.UserCenter.Controllers
                     ExtensionPermissions = x.ExtensionPermissions
                 })
                 .ToListAsync(token));
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ApplicationManager(Guid id, CancellationToken token)
+        {
+            var application = DB.Applications.SingleOrDefaultAsync(x => x.Id == id, token);
+
+            if (application == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Application Not Found"];
+                    x.Details = SR["The specified application is not found."];
+                    x.StatusCode = 404;
+                });
+            }
+
+            if (!await User.Manager.IsInAnyRolesOrClaimsAsync(User.Current, "Root", "OwnedApplication", application.Id.ToString()))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["No permission"];
+                    x.Details = SR["You do not have the permission to access this resource."];
+                    x.StatusCode = 401;
+                });
+            }
+
+            ViewBag.Managers = await DB.UserClaims
+                .Where(x => x.ClaimValue == application.Id.ToString())
+                .Where(x => x.ClaimType == "OwnedApplication" || x.ClaimType == "OwnedApplication")
+                .Join(DB.Users, x => x.UserId, x => x.Id, (x, y) => new ApplicationManagerViewModel
+                {
+                    Role = x.ClaimType == "OwnedApplication" ? "Owner" : "Manager",
+                    Nickname = y.Nickname,
+                    Username = y.UserName,
+                    UserId = y.Id
+                })
+                .ToListAsync(token);
+
+            return View(application);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplicationManagerRemove(Guid id, Guid userId, CancellationToken token)
+        {
+            if (userId == User.Current.Id)
+            {
+                return Prompt(x => 
+                {
+                    x.Title = SR["Invalid Operation"];
+                    x.Details = SR["You cannot remove yourself from this application."];
+                    x.StatusCode = 403;
+                });
+            }
+
+            var application = await DB.Applications.SingleOrDefaultAsync(x => x.Id == id, token);
+
+            if (application == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Application Not Found"];
+                    x.Details = SR["The specified application is not found."];
+                    x.StatusCode = 404;
+                });
+            }
+
+            if (!await User.Manager.IsInAnyRolesOrClaimsAsync(User.Current, "Root", "OwnedApplication", application.Id.ToString()))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["No permission"];
+                    x.Details = SR["You do not have the permission to access this resource."];
+                    x.StatusCode = 401;
+                });
+            }
+
+            var user = await DB.Users.SingleOrDefaultAsync(x => x.Id == userId, token);
+            if (user == null)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["User Not Found"];
+                    x.Details = SR["The specified user is not found."];
+                    x.StatusCode = 404;
+                });
+            }
+
+            await User.Manager.RemoveClaimAsync(user, new Claim("SuperviseApplication", application.Id.ToString()));
+
+            return Prompt(x =>
+            {
+                x.Title = SR["Suceeded"];
+                x.Details = SR["You have removed {0} from {1} successfully.", user.UserName, application.Name];
+            });
         }
 
         //[HttpPost]

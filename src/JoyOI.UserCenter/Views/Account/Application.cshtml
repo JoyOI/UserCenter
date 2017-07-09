@@ -28,10 +28,10 @@
                             </div>
                             @if (x.Role == "OwnedApplication")
                             {
-                                <a class="application-item-btn" asp-action="ApplicationManager">@SR["Managers"]</a>
-                                <a class="application-item-btn" asp-action="ApplicationSecret">@SR["Secret"]</a>
+                                <a class="application-item-btn" asp-action="ApplicationManager" asp-route-id="@x.Id">@SR["Managers"]</a>
+                                <a class="application-item-btn" asp-action="ApplicationSecret" asp-route-id="@x.Id">@SR["Secret"]</a>
                             }
-                            <a class="application-item-btn" asp-action="ApplicationCustomers">@SR["Customers"]</a>
+                            <a class="application-item-btn" asp-action="ApplicationCustomers" asp-route-id="@x.Id">@SR["Customers"]</a>
                             <div class="clear"></div>
                         </div>
                     }
