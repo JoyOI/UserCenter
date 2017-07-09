@@ -1,3 +1,23 @@
 ﻿.avatar-section {
     display: none;
 }
+
+.application-item-outer {
+    background: #fff;
+    color: #646464;
+    box-shadow: 0 0.375rem 1.375rem rgba(194,175, 201, .5);
+}
+
+.application-item-icon {
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+}
+
+.application-item-title {
+
+}
+
+.application-item-details {
+
+}

@@ -1,162 +1,147 @@
 ﻿@model User
-    @{
-        ViewBag.Title = Model.UserName;
-    }
+@{
+    ViewBag.Title = Model.UserName;
+}
 
-    @section Navigator {
-        <div class="columns">
-            <div class="location-path">
-                / <a href="/">JoyOI</a> /
-            </div>
-            <h1 class="location-current" data-emoji-enabled="">@SR["Personal Settings"]</h1>
+@section Navigator {
+    <div class="columns">
+        <div class="location-path">
+            / <a href="/">JoyOI</a> /
         </div>
-    }
+        <h1 class="location-current" data-emoji-enabled="">@SR["Personal Settings"]</h1>
+    </div>
+}
 
-    <div class="container">
-        <div class="cont-wrap">
-            <div class="grid_9">
-                <div class="profile-content">
-                    <div class="section visible">
-                        <div class="profile-header" style="background: url(/images/@(ViewBag.ImageId).jpg)">
-                            <div class="profile-avatar-outer">
-                                <img src="@Url.Action("GetAvatar", "Account", new { id = Model.Id })" width="120" height="120" class="profile-avatar">
-                            </div>
-                            <div class="profile-body">
-                                <h1>@Model.UserName <small>(@(ViewBag.Role ?? "Member"))</small></h1>
-                                <p>
-                                    @SR["Registered"] <span class="time relative" datetime="@Model.RegisterTime.ToTimeStamp()">@Model.RegisterTime</span>,
-                                    @SR["Last activited"] <span class="time relative" datetime="@Model.ActiveTime.ToTimeStamp()">@Model.ActiveTime</span>.
-                                </p>
-                            </div>
+<div class="container">
+    <div class="cont-wrap">
+        <div class="grid_9">
+            <div class="profile-content">
+                <div class="section visible">
+                    <div class="profile-header" style="background: url(/images/@(ViewBag.ImageId).jpg)">
+                        <div class="profile-avatar-outer">
+                            <img src="@Url.Action("GetAvatar", "Account", new { id = Model.Id })" width="120" height="120" class="profile-avatar">
                         </div>
-                        <div class="profile-tabs-outer">
-                            <div class="profile-tabs">
-                                <ul class="profile-tabs-ul">
-                                    <li class="profile-tabs-item" onclick="openTab('#tab-profile')">@SR["Profile"]</li>
-                                    <li class="profile-tabs-item" onclick="openTab('#tab-password')">@SR["Password"]</li>
-                                    <li class="profile-tabs-item" onclick="openTab('#tab-currency')">@SR["Currency"]</li>
-                                </ul>
-                                <div class="profile-tabs-section" id="tab-profile">
-                                    <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
-                                        <p>
-                                            <label>@SR["Nick name"]</label>
-                                            <input type="text" class="form-control" name="nickname" value="@Model.Nickname" placeholder="@SR["Enter a nick name."]" />
-                                        </p>
-                                        <p>
-                                            <label>@SR["Sex"]</label>
-                                            <select name="sex" class="form-control">
-                                                @foreach(var x in Enum.GetNames(typeof(Sex)))
-                                                { 
-                                                    <!option value="@x" @(Model.Sex.ToString() == x ? "selected" : "")>@SR[x]</!option>
-                                                }
-                                            </select>
-                                        </p>
-                                        <p>
-                                            <label>@SR["School / Organization"]</label>
-                                            <input type="text" class="form-control" name="school" value="@Model.School" placeholder="@SR["Enter your school or organization name."]" />
-                                        </p>
-                                        <p>
-                                            <label>@SR["Address"]</label>
-                                            <input type="text" class="form-control" name="address" value="@Model.Address" placeholder="@SR["For receiving gifts."]" />
-                                        </p>
-                                        <p>
-                                            <label>@SR["Avatar Source"]</label>
-                                            <select name="avatarsource" class="form-control" id="lstAvatarResources">
-                                                @foreach (var x in Enum.GetNames(typeof(AvatarSource)))
-                                                {
-                                                    <!option value="@x" @(Model.AvatarSource.ToString() == x ? "selected" : "")>@SR[x]</!option>
-                                                }
-                                            </select>
-                                        </p>
-                                        <p class="avatar-section" id="uploadAvatar">
-                                            <label>@SR["Upload Avatar"]</label>
-                                            <input type="file" name="avatar" class="form-control" />
-                                        </p>
-                                        <p class="avatar-section" id="gravatar">
-                                            <label>@SR["Gravatar"]</label>
-                                            <input type="text" name="gravatar" class="form-control" placeholder="@SR["Enter your Gravatar email address."]" />
-                                        </p>
-                                        <p class="avatar-section" id="wechatAvatar">
-                                            <label>@SR["Wechat Avatar"]</label>
-                                            <span>@SR["<Wechat Avatar Not Supported>"]</span>
-                                        </p>
-                                        <p>
-                                            <input type="submit" class="btn btn-default" value="@SR["Save"]" />
-                                        </p>
-                                    </form>
-                                </div>
-                                <div id="tab-password" class="profile-tabs-section">
-                                    <form asp-action="Password" asp-controller="Account" asp-route-id="@Model.Id">
-                                        @if (!User.IsInRole("Root"))
-                                        {
-                                            <p>
-                                                <label>@SR["Old Password"]</label>
-                                                <input type="password" class="form-control" name="oldpassword" placeholder="@SR["Enter the old password."]" />
-                                            </p>
-                                        }
-                                        <p>
-                                            <label>@SR["New Password"]</label>
-                                            <input type="password" class="form-control" name="newpassword" placeholder="@SR["Enter the new password."]" />
-                                        </p>
-                                        <p>
-                                            <label>@SR["Confirm Password"]</label>
-                                            <input type="password" class="form-control" name="confirm" placeholder="@SR["Enter again the above password"]" />
-                                        </p>
-                                        @if (!User.IsInRole("Root") && Model.Id != User.Current.Id)
-                                        {
-                                            <p>
-                                                <label>@SR["Role"]</label>
-                                                <select class="form-control" name="role">
-                                                    <option>Member</option>
-                                                    <!option @(ViewBag.Role == "Root" ? "selected" : "")>Root</!option>
-                                                </select>
-                                            </p>
-                                        }
-                                        <p>
-                                            <input type="submit" class="btn btn-default" value="@SR["Save"]" />
-                                        </p>
-                                    </form>
-                                </div>
-                                <div id="tab-currency" class="profile-tabs-section">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>@SR["Currency"]</th>
-                                                <th>@SR["Count"]</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach(var x in Model.Extensions.Object)
-                                            {
-                                                <tr>
-                                                    <td>@SR[x.Key]</td>
-                                                    <td>@x.Value</td>
-                                                </tr>
+                        <div class="profile-body">
+                            <h1>@Model.UserName <small>(@(ViewBag.Role ?? "Member"))</small></h1>
+                            <p>
+                                @SR["Registered"] <span class="time relative" datetime="@Model.RegisterTime.ToTimeStamp()">@Model.RegisterTime</span>,
+                                @SR["Last activited"] <span class="time relative" datetime="@Model.ActiveTime.ToTimeStamp()">@Model.ActiveTime</span>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="profile-tabs-outer">
+                        <div class="profile-tabs">
+                            <ul class="profile-tabs-ul">
+                                <li class="profile-tabs-item" onclick="openTab('#tab-profile')">@SR["Profile"]</li>
+                                <li class="profile-tabs-item" onclick="openTab('#tab-password')">@SR["Password"]</li>
+                                <li class="profile-tabs-item" onclick="openTab('#tab-currency')">@SR["Currency"]</li>
+                            </ul>
+                            <div class="profile-tabs-section" id="tab-profile">
+                                <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
+                                    <p>
+                                        <label>@SR["Nick name"]</label>
+                                        <input type="text" class="form-control" name="nickname" value="@Model.Nickname" placeholder="@SR["Enter a nick name."]" />
+                                    </p>
+                                    <p>
+                                        <label>@SR["Sex"]</label>
+                                        <select name="sex" class="form-control">
+                                            @foreach(var x in Enum.GetNames(typeof(Sex)))
+                                            { 
+                                                <!option value="@x" @(Model.Sex.ToString() == x ? "selected" : "")>@SR[x]</!option>
                                             }
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        </select>
+                                    </p>
+                                    <p>
+                                        <label>@SR["School / Organization"]</label>
+                                        <input type="text" class="form-control" name="school" value="@Model.School" placeholder="@SR["Enter your school or organization name."]" />
+                                    </p>
+                                    <p>
+                                        <label>@SR["Address"]</label>
+                                        <input type="text" class="form-control" name="address" value="@Model.Address" placeholder="@SR["For receiving gifts."]" />
+                                    </p>
+                                    <p>
+                                        <label>@SR["Avatar Source"]</label>
+                                        <select name="avatarsource" class="form-control" id="lstAvatarResources">
+                                            @foreach (var x in Enum.GetNames(typeof(AvatarSource)))
+                                            {
+                                                <!option value="@x" @(Model.AvatarSource.ToString() == x ? "selected" : "")>@SR[x]</!option>
+                                            }
+                                        </select>
+                                    </p>
+                                    <p class="avatar-section" id="uploadAvatar">
+                                        <label>@SR["Upload Avatar"]</label>
+                                        <input type="file" name="avatar" class="form-control" />
+                                    </p>
+                                    <p class="avatar-section" id="gravatar">
+                                        <label>@SR["Gravatar"]</label>
+                                        <input type="text" name="gravatar" class="form-control" placeholder="@SR["Enter your Gravatar email address."]" />
+                                    </p>
+                                    <p class="avatar-section" id="wechatAvatar">
+                                        <label>@SR["Wechat Avatar"]</label>
+                                        <span>@SR["<Wechat Avatar Not Supported>"]</span>
+                                    </p>
+                                    <p>
+                                        <input type="submit" class="btn btn-default" value="@SR["Save"]" />
+                                    </p>
+                                </form>
+                            </div>
+                            <div id="tab-password" class="profile-tabs-section">
+                                <form asp-action="Password" asp-controller="Account" asp-route-id="@Model.Id">
+                                    @if (!User.IsInRole("Root"))
+                                    {
+                                        <p>
+                                            <label>@SR["Old Password"]</label>
+                                            <input type="password" class="form-control" name="oldpassword" placeholder="@SR["Enter the old password."]" />
+                                        </p>
+                                    }
+                                    <p>
+                                        <label>@SR["New Password"]</label>
+                                        <input type="password" class="form-control" name="newpassword" placeholder="@SR["Enter the new password."]" />
+                                    </p>
+                                    <p>
+                                        <label>@SR["Confirm Password"]</label>
+                                        <input type="password" class="form-control" name="confirm" placeholder="@SR["Enter again the above password"]" />
+                                    </p>
+                                    @if (!User.IsInRole("Root") && Model.Id != User.Current.Id)
+                                    {
+                                        <p>
+                                            <label>@SR["Role"]</label>
+                                            <select class="form-control" name="role">
+                                                <option>Member</option>
+                                                <!option @(ViewBag.Role == "Root" ? "selected" : "")>Root</!option>
+                                            </select>
+                                        </p>
+                                    }
+                                    <p>
+                                        <input type="submit" class="btn btn-default" value="@SR["Save"]" />
+                                    </p>
+                                </form>
+                            </div>
+                            <div id="tab-currency" class="profile-tabs-section">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>@SR["Currency"]</th>
+                                            <th>@SR["Count"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(var x in Model.Extensions.Object)
+                                        {
+                                            <tr>
+                                                <td>@SR[x.Key]</td>
+                                                <td>@x.Value</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="grid_3">
-                <div class="sidebar-section sidebar-first">
-                    <a class="sidebar-section-button active" asp-action="Index" asp-controller="Account" asp-route-id="@Model.Id">
-                        <i class="fa fa-user"></i>
-                        <span>@SR["Manage User"]</span>
-                    </a>
-                    <a class="sidebar-section-button" asp-action="Application" asp-controller="Account" asp-route-id="@Model.Id">
-                        <i class="fa fa-chain"></i>
-                        <span>@SR["Manage Apps"]</span>
-                    </a>
-                    <a class="sidebar-section-button" asp-action="Authorization" asp-controller="Account" asp-route-id="@Model.Id">
-                        <i class="fa fa-key"></i>
-                        <span>@SR["Authorization"]</span>
-                    </a>
-                </div>
-            </div>
         </div>
+
+        @await Html.PartialAsync("_Sidebar")
     </div>
+</div>

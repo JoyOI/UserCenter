@@ -1,0 +1,20 @@
+﻿@{ 
+    Layout = null;
+}
+
+<div class="grid_3">
+    <div class="sidebar-section sidebar-first">
+        <a class="sidebar-section-button active" asp-action="Index" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+            <i class="fa fa-user"></i>
+            <span>@SR["Manage User"]</span>
+        </a>
+        <a class="sidebar-section-button" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+            <i class="fa fa-chain"></i>
+            <span>@SR["Manage Apps"]</span>
+        </a>
+        <a class="sidebar-section-button" asp-action="Authorization" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+            <i class="fa fa-key"></i>
+            <span>@SR["Authorization"]</span>
+        </a>
+    </div>
+</div>

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
@@ -29,12 +32,22 @@ namespace JoyOI.UserCenter.Models
 
         public DbSet<Blob> Blobs { get; set; }
 
-        public async void InitializeAsync(IServiceProvider services)
+        public async void InitializeAsync(IServiceProvider services, CancellationToken token = default(CancellationToken))
         {
-            if (Database.EnsureCreated())
+            if (await Database.EnsureCreatedAsync(token))
             {
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
                 await roleManager.CreateAsync(new IdentityRole<Guid>("Root"));
+
+                var bytes = await File.ReadAllBytesAsync(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png"), token);
+                var icon = new Blob
+                {
+                    ContentType = "image/png",
+                    FileName = "icon.png",
+                    Time = DateTime.Now
+                };
+
+                Blobs.Add(icon);
 
                 Applications.Add(new Application
                 {
@@ -42,9 +55,10 @@ namespace JoyOI.UserCenter.Models
                     CallBackUrl = "http://callback",
                     Name = "Empty",
                     Secret = "0",
-                    Type = ApplicationType.Official
+                    Type = ApplicationType.Official,
+                    IconId = icon.Id
                 });
-                SaveChanges();
+                await SaveChangesAsync(token);
             }
         }
 

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<OpenId>
+@{ 
+    ViewBag.Title = SR["Applications"];
+}
+
+@section Navigator {
+    <div class="columns">
+        <div class="location-path">
+            / <a href="/">JoyOI</a> /
+        </div>
+        <h1 class="location-current" data-emoji-enabled="">@SR["Applications"]</h1>
+    </div>
+}
+
+<div class="container">
+    <div class="cont-wrap">
+        <div class="grid_9">
+
+        </div>
+
+        @await Html.PartialAsync("_Sidebar")
+    </div>
+</div>

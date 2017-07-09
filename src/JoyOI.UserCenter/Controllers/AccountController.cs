@@ -479,6 +479,16 @@ namespace JoyOI.UserCenter.Controllers
                 id = User.Current.Id;
             }
 
+            if (id.Value != User.Current.Id && !User.IsInRole("Root"))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["No permission"];
+                    x.Details = SR["You do not have the permission to access this resource."];
+                    x.StatusCode = 401;
+                });
+            }
+
             var applications = await DB.OpenIds
                 .Where(x => x.UserId == id)
                 .ToListAsync(token);
