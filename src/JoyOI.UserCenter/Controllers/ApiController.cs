@@ -74,7 +74,7 @@ namespace JoyOI.UserCenter.Controllers
                 if (ControllerContext.RouteData.Values.ContainsKey("id"))
                 {
                     var id = Guid.Parse(ControllerContext.RouteData.Values["id"].ToString());
-                    return DB.Applications.SingleOrDefault(x => x.Id == id);
+                    return DB.Applications.SingleOrDefault(x => x.Id == id && x.Type != ApplicationType.Pending);
                 }
                 else
                 {

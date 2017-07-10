@@ -9,7 +9,8 @@ namespace JoyOI.UserCenter.Models
     public enum ApplicationType
     {
         Official,
-        ThirdParty
+        ThirdParty,
+        Pending
     }
 
     public class Application
@@ -39,5 +40,7 @@ namespace JoyOI.UserCenter.Models
 
         [ConcurrencyCheck]
         public Guid ConcurrencyStamp { get; set; }
+
+        public string RequestText { get; set; }
     }
 }
