@@ -96,3 +96,22 @@
 .application-paging-outer {
     margin-top: 30px;
 }
+
+.sidebar-section-button.nested {
+    padding-left: 35px;
+}
+
+.sidebar-section-button.active-uplevel {
+    border-color: #ccc;
+    background: #eee;
+    color: #666 !important;
+}
+
+.sidebar-uplevel {
+    display: none;
+}
+
+.sidebar-section-button.active-uplevel .sidebar-uplevel {
+    display:inline;
+    float: right;
+}

@@ -12,9 +12,19 @@
             <i class="fa fa-key"></i>
             <span>@SR["Authorization"]</span>
         </a>
-        <a class="sidebar-section-button @(ViewContext.RouteData.Values["action"].ToString() == "Application" ? "active" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+        <a class="sidebar-section-button @(ViewContext.RouteData.Values["action"].ToString() == "Application" ? "active-uplevel" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
             <i class="fa fa-chain"></i>
             <span>@SR["Manage Apps"]</span>
+            <i class="fa fa-angle-down sidebar-uplevel"></i>
         </a>
+        @if (ViewContext.RouteData.Values["action"].ToString() == "Application" || ViewContext.RouteData.Values["action"].ToString() == "ApplicationCreate")
+        {
+            <a class="sidebar-section-button nested @(ViewContext.RouteData.Values["action"].ToString() == "Application" ? "active" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+                <span>@SR["Applications"]</span>
+            </a>
+            <a class="sidebar-section-button nested @(ViewContext.RouteData.Values["action"].ToString() == "ApplicationCreate" ? "active" : "")" asp-action="Application" asp-controller="Account" asp-route-id="@ViewContext.RouteData.Values["id"]">
+                <span>@SR["Create"]</span>
+            </a>
+        }
     </div>
 </div>
