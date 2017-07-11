@@ -699,14 +699,6 @@ namespace JoyOI.UserCenter.Controllers
             });
         }
 
-        //[HttpPost]
-        //[Authorize]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Application()
-        //{
-
-        //}
-
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -714,6 +706,13 @@ namespace JoyOI.UserCenter.Controllers
         {
             await SignInManager.SignOutAsync();
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ApplicationCreate()
+        {
+            return View();
         }
     }
 }
