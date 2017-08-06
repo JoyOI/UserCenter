@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Redis;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -58,7 +53,7 @@ namespace JoyOI.UserCenter
             });
 
             services.AddEntityFrameworkMySql()
-                .AddDbContext<UserCenterContext>(x => x.UseMySql(Config["Data:MySQL"]));
+                .AddDbContextPool<UserCenterContext>(x => x.UseMySql(Config["Data:MySQL"]));
 
             services.AddIdentity<User, IdentityRole<Guid>>(x=> 
             {
