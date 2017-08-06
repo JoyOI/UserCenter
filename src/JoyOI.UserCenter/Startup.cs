@@ -54,7 +54,7 @@ namespace JoyOI.UserCenter
             services.AddDistributedRedisCache(x =>
             {
                 x.Configuration = Config["Host:Redis"];
-                x.InstanceName = "HD_QR_";
+                x.InstanceName = "JOYOI_UC_";
             });
 
             services.AddEntityFrameworkMySql()
