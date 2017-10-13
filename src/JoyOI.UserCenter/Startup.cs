@@ -55,7 +55,7 @@ namespace JoyOI.UserCenter
             services.AddEntityFrameworkMySql()
                 .AddDbContextPool<UserCenterContext>(x => x.UseMySql(Config["Data:MySQL"]));
 
-            services.AddIdentity<User, IdentityRole<Guid>>(x=> 
+            services.AddIdentity<User, Role>(x=> 
             {
                 x.Password.RequireDigit = false;
                 x.Password.RequiredLength = 0;
