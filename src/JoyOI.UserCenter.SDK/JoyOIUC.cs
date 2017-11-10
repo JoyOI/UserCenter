@@ -138,7 +138,7 @@ namespace JoyOI.UserCenter.SDK
 
         public string GetAvatarUrl(Guid openId, int size = 230)
         {
-            return $"{ _baseUri.ToString() }/getavatar/{ openId }?size={ size }";
+            return $"{ _baseUri.ToString() }getavatar/{ openId }?size={ size }";
         }
 
         public async Task<byte[]> GetAvatarBytesAsync(Guid openId, int size = 230)
