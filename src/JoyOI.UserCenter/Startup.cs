@@ -25,7 +25,16 @@ namespace JoyOI.UserCenter
         {
             services.AddConfiguration(out Config);
 
-            var redis = ConnectionMultiplexer.Connect(Config["Data:Redis"]);
+            var redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
+            {
+                AbortOnConnectFail = false,
+                EndPoints = { Config["Data:Redis:Host"] },
+                Password = Config["Data:Redis:Password"],
+                Ssl = false,
+                ResponseTimeout = 100000,
+                ChannelPrefix = "SHARED",
+                DefaultDatabase = 1
+            });
 
             services.AddDataProtection()
                 .PersistKeysToRedis(redis, "DATA_PROTECTION_KEYS_");
@@ -40,22 +49,21 @@ namespace JoyOI.UserCenter
             services.AddSignalR()
                 .AddRedis(x =>
                 {
-                    x.Options.EndPoints.Add("localhost", 6379);
-                    x.Options.DefaultDatabase = 2;
+                    x.Options.EndPoints.Add(Config["Data:Redis:Host"]);
+                    x.Options.Password = Config["Data:Redis:Password"];
+                    x.Options.AbortOnConnectFail = false;
+                    x.Options.Ssl = false;
+                    x.Options.ResponseTimeout = 100000;
+                    x.Options.ChannelPrefix = "USER_CENTER";
+                    x.Options.DefaultDatabase = 3;
                 });
 
             services.AddSmartUser<User, Guid>();
 
-            services.AddDistributedRedisCache(x =>
-            {
-                x.Configuration = Config["Host:Redis"];
-                x.InstanceName = "JOYOI_UC_";
-            });
-
             services.AddEntityFrameworkMySql()
                 .AddDbContextPool<UserCenterContext>(x => x.UseMySql(Config["Data:MySQL"]));
 
-            services.AddIdentity<User, IdentityRole<Guid>>(x=> 
+            services.AddIdentity<User, Role>(x=> 
             {
                 x.Password.RequireDigit = false;
                 x.Password.RequiredLength = 0;

@@ -1,15 +1,18 @@
 ﻿{
-    "Data": {
-        "MySQL": "server=localhost;database=joyoi_uc;uid=root;pwd=123456",
-        "Redis": "localhost"
-    },
-    "Domain": {
-        "Api": "api.uc.joyoi.com",
-        "ApiProtocol": "http",
-        "Main": "uc.joyoi.com"
-    },
-    "Security": {
-        "PrivateKey": "a8vks91pcja924jz",
-        "IV": "v8sdpz01j3o28sz0"
+  "Data": {
+    "MySQL": "server=localhost;database=joyoi_uc;uid=root;pwd=123456",
+    "Redis": {
+      "Host": "localhost:6379",
+      "Password": null
     }
+  },
+  "Domain": {
+    "Api": "api.uc.joyoi.com",
+    "ApiProtocol": "http",
+    "Main": "uc.joyoi.com"
+  },
+  "Security": {
+    "PrivateKey": "a8vks91pcja924jz",
+    "IV": "v8sdpz01j3o28sz0"
+  }
 }

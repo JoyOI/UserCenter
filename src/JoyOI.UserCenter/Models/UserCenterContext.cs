@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +9,7 @@ using Pomelo.AspNetCore.Extensions.BlobStorage.Models;
 
 namespace JoyOI.UserCenter.Models
 {
-    public class UserCenterContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>, IBlobStorageDbContext
+    public class UserCenterContext : IdentityDbContext<User, Role, Guid>, IBlobStorageDbContext
     {
         public UserCenterContext(DbContextOptions opt) : base(opt)
         {
