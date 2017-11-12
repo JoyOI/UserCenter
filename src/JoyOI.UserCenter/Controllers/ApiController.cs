@@ -570,7 +570,14 @@ updateExtensionCoin:
                     {
                         var result = await client.GetAsync($"/avatar/{ md5_email }?d={ HttpContext.Request.Scheme }://{ HttpContext.Request.Host }/images/non-avatar.png&s={ size }", token);
                         var bytes = await result.Content.ReadAsByteArrayAsync();
-                        return File(bytes, "image/png", "avatar.png");
+                        if (bytes.Length > 0)
+                        {
+                            return File(bytes, "image/png", "avatar.png");
+                        }
+                        else
+                        {
+                            return File(System.IO.File.ReadAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "non-avatar.png")), "image/gif", "avatar.png");
+                        }
                     }
                 }
                 else if (openId.User.AvatarSource == AvatarSource.WeChatPolling)
