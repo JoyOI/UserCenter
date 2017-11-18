@@ -643,5 +643,88 @@ updateExtensionCoin:
                 }
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SendSmsToUser(
+            Guid id,
+            string secret,
+            Guid OpenId,
+            string accessToken,
+            string content,
+            CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                var openId = await DB.OpenIds
+                    .Include(x => x.User)
+                    .SingleAsync(x => x.Id == OpenId, token);
+
+                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                {
+                    return ApiResult(SR["Your access token is invalid."], 403);
+                }
+
+                if (!openId.User.PhoneNumberConfirmed)
+                {
+                    return ApiResult(SR["The phone number is not comfirmed."], 400);
+                }
+
+                var phone = openId.User.PhoneNumber;
+                using (var client = new HttpClient() { BaseAddress = new Uri("http://www.inolink.com") })
+                using (var response = await client.GetAsync($"/ws/BatchSend.aspx?CorpID={ Configuration["SMS:CorpId"] }&Pwd={ Configuration["SMS:Pwd"] }&Mobile={ phone }&Content={ System.Net.WebUtility.UrlEncode(content) }"))
+                {
+                    var text = await response.Content.ReadAsStringAsync();
+                    if (text == "1")
+                    {
+                        return ApiResult(SR["The SMS sent successfully"]);
+                    }
+                    else
+                    {
+                        return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
+                    }
+                }
+            }
+        }
+
+        public async Task<IActionResult> SendSms(
+            Guid id,
+            string secret,
+            string phone,
+            string content,
+            CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                using (var client = new HttpClient() { BaseAddress = new Uri("http://www.inolink.com") })
+                using (var response = await client.GetAsync($"/ws/BatchSend.aspx?CorpID={ Configuration["SMS:CorpId"] }&Pwd={ Configuration["SMS:Pwd"] }&Mobile={ phone }&Content={ System.Net.WebUtility.UrlEncode(content) }"))
+                {
+                    var text = await response.Content.ReadAsStringAsync();
+                    if (text == "1")
+                    {
+                        return ApiResult(SR["The SMS sent successfully"]);
+                    }
+                    else
+                    {
+                        return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
+                    }
+                }
+            }
+        }
     }
 }

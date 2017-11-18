@@ -1,15 +1,19 @@
 ﻿{
   "Data": {
-    "MySQL": "server=localhost;database=joyoi_uc;uid=root;pwd=123456",
+    "MySQL": "Server=yiszheng.mysqldb.chinacloudapi.cn;Port=3306;Database=joyoi_uc;Uid=yiszheng%yuko;Pwd=Yuuko19931101;Connection Reset=False",
     "Redis": {
-      "Host": "localhost:6379",
-      "Password": null
+      "Host": "joyoi.redis.cache.chinacloudapi.cn:6379",
+      "Password": "vKPwom3FC6lmBS9eH2X7YrQemhnaVdZhuXqcA+Yt1qA="
     }
   },
+  "SMS": {
+    "CorpId": "",
+    "Pwd": ""
+  },
   "Domain": {
-    "Api": "api.uc.joyoi.com",
+    "Api": "localhost:5000",
     "ApiProtocol": "http",
-    "Main": "uc.joyoi.com"
+    "Main": "uc.joyoi.cn"
   },
   "Security": {
     "PrivateKey": "a8vks91pcja924jz",

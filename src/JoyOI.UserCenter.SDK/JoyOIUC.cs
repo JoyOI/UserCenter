@@ -166,5 +166,41 @@ namespace JoyOI.UserCenter.SDK
                 return JsonConvert.DeserializeObject<ResponseBody<string>>(ret);
             }
         }
+
+        public async Task<bool> SendSmsToUserAsync(
+            Guid openId,
+            string accessToken,
+            string content)
+        {
+
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "openid", openId.ToString() },
+                    { "accessToken", accessToken },
+                    { "content", content }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return result.IsSuccessStatusCode;
+            }
+        }
+
+        public async Task<bool> SendSmsAsync(
+            string phone,
+            string content)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "phone", phone },
+                    { "content", content }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return result.IsSuccessStatusCode;
+            }
+        }
     }
 }
