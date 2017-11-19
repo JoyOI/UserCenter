@@ -684,7 +684,7 @@ updateExtensionCoin:
                 }
                 else
                 {
-                    return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
+                    return ApiResult(SR["The SMS sent failed."], 500);
                 }
             }
         }
