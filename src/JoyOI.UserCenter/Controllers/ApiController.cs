@@ -806,5 +806,26 @@ namespace JoyOI.UserCenter.Controllers
                 return ApiResult((await DB.Users.AnyAsync(x => x.Email == email)));
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> IsUsernameExist(Guid id, string secret, string username, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                return ApiResult((await DB.Users.AnyAsync(x => x.UserName == username)));
+            }
+        }
     }
 }

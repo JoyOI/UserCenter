@@ -254,5 +254,20 @@ namespace JoyOI.UserCenter.SDK
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
         }
+
+        public async Task<bool> IsUsernameExistAsync(
+            string username)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/IsUsernameExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "username", username }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
+            }
+        }
     }
 }
