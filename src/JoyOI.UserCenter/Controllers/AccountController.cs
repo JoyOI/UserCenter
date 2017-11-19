@@ -253,7 +253,7 @@ namespace JoyOI.UserCenter.Controllers
             [FromServices] AesCrypto Aes,
             CancellationToken token)
         {
-            if (string.IsNullOrEmpty(phone)) 
+            if (string.IsNullOrEmpty(phone))
             {
                 return _Prompt(x =>
                 {
@@ -280,13 +280,27 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
+            else if (!string.IsNullOrEmpty(Request.Cookies["register"]))
+            {
+                var data = JsonConvert.DeserializeObject<dynamic>(Aes.Decrypt(Request.Cookies["register"]));
+                var send = (DateTime)data.send;
+                if (DateTime.Now < send.AddMinutes(2))
+                {
+                    return Prompt(x => 
+                    {
+                        x.Title = SR["Verify Code Send Failed"];
+                        x.Details = SR["Please wait {0} seconds.", (send.AddMinutes(2) - DateTime.Now).TotalSeconds];
+                    });
+                }
+            }
 
             var code = _random.Next(100000, 999999);
             Response.Cookies.Append("register", Aes.Encrypt(JsonConvert.SerializeObject(new
             {
                 code = code.ToString(),
                 phone = phone,
-                expire = DateTime.Now.AddMinutes(30)
+                expire = DateTime.Now.AddMinutes(30),
+                send = DateTime.Now
             })));
 
             var content = "欢迎注册JoyOI通行证，您的验证码为：" + code;
@@ -417,7 +431,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 UserName = username,
                 Nickname = nickname,
-                PhoneNumber = phone,
+                PhoneNumber = parsedPhone,
                 PhoneNumberConfirmed = true,
                 Email = email.ToLower(),
                 EmailConfirmed = false,
