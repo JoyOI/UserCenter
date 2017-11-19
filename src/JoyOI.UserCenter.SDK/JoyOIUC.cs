@@ -19,7 +19,7 @@ namespace JoyOI.UserCenter.SDK
             _configuration = configuration;
             _appId = Guid.Parse(configuration["JoyOI:AppId"]);
             _secret = configuration["JoyOI:Secret"];
-            _baseUri = new Uri(configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.net");
+            _baseUri = new Uri(configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.cn");
         }
 
         public async Task<ResponseBody<long>> GetExtensionCoinAsync(
