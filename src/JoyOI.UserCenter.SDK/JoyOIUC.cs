@@ -195,11 +195,63 @@ namespace JoyOI.UserCenter.SDK
             {
                 var result = await client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
+                    { "secret", _secret },
                     { "phone", phone },
                     { "content", content }
                 }));
                 var ret = await result.Content.ReadAsStringAsync();
                 return result.IsSuccessStatusCode;
+            }
+        }
+
+        public async Task<Guid> InsertUserAsync(
+            string username,
+            string password,
+            string phone,
+            string email)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/InsertUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "username", username },
+                    { "password", password },
+                    { "email", email },
+                    { "phone", phone }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<Guid>>(ret).data;
+            }
+        }
+
+        public async Task<bool> IsPhoneExistAsync(
+            string phone)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/IsPhoneExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "phone", phone }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
+            }
+        }
+
+        public async Task<bool> IsEmailExistAsync(
+            string email)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/IsEmailExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "email", email }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
         }
     }

@@ -65,7 +65,7 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return url + "?code=" + code;
             }
-        } 
+        }
 
         public Application Application
         {
@@ -103,7 +103,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (!CallBackUrl.StartsWith(Application.CallBackUrl))
             {
-                return _Prompt(x => 
+                return _Prompt(x =>
                 {
                     x.Title = SR["Request denied"];
                     x.Details = SR["The callback URL is invalid."];
@@ -193,9 +193,9 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         public async Task<IActionResult> CheckUser(
-            Guid id, 
-            string username, 
-            string password, 
+            Guid id,
+            string username,
+            string password,
             string secret,
             CancellationToken token)
         {
@@ -233,7 +233,7 @@ namespace JoyOI.UserCenter.Controllers
                     openId.ExpireTime = DateTime.Now.AddDays(15);
                     openId.Code = null;
                 }
-                
+
                 await DB.SaveChangesAsync(token);
 
                 return ApiResult(new
@@ -250,6 +250,10 @@ namespace JoyOI.UserCenter.Controllers
             if (Application == null)
             {
                 return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
             }
             else if (Application.Secret != secret)
             {
@@ -334,9 +338,9 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost]
         public async Task<IActionResult> GetExtensionCoin(
-            Guid id, 
-            string field, 
-            string accessToken, 
+            Guid id,
+            string field,
+            string accessToken,
             Guid openId,
             string secret,
             CancellationToken token)
@@ -405,7 +409,7 @@ namespace JoyOI.UserCenter.Controllers
                 var _openId = await DB.OpenIds
                     .Include(x => x.User)
                     .SingleAsync(x => x.Id == openId, token);
-                
+
                 if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
@@ -460,7 +464,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-updateExtensionCoin:
+                updateExtensionCoin:
                 var _openId = await DB.OpenIds
                     .Include(x => x.User)
                     .SingleAsync(x => x.Id == openId, token);
@@ -689,6 +693,7 @@ updateExtensionCoin:
             }
         }
 
+        [HttpPost]
         public async Task<IActionResult> SendSms(
             Guid id,
             string secret,
@@ -714,6 +719,91 @@ updateExtensionCoin:
                 {
                     return ApiResult(SR["The SMS sent failed."], 500);
                 }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> InsertUser(Guid id, string secret, string username, string password, string email, string phone, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed))
+            {
+                return ApiResult(SR["The phone number is already exist."]);
+            }
+            else if (await DB.Users.AnyAsync(x => x.Email == email))
+            {
+                return ApiResult(SR["The email address is already exist."]);
+            }
+            else
+            {
+                var user = new User { UserName = username, Email = email, PhoneNumber = phone, PhoneNumberConfirmed = true, AvatarData = email, AvatarSource = AvatarSource.GravatarPolling };
+                await User.Manager.CreateAsync(user, password);
+
+                var openId = new OpenId
+                {
+                    AccessToken = _generateString(64),
+                    ApplicationId = id,
+                    Code = null,
+                    ExpireTime = DateTime.Now.AddDays(15),
+                    UserId = user.Id
+                };
+                DB.OpenIds.Add(openId);
+                await DB.SaveChangesAsync();
+
+                return ApiResult(openId.Id);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IsPhoneExist(Guid id, string secret, string phone, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                return ApiResult((await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed)).ToString());
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IsEmailExist(Guid id, string secret, string phone, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                return ApiResult((await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed)).ToString());
             }
         }
     }
