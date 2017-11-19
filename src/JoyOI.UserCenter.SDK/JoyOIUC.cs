@@ -193,7 +193,7 @@ namespace JoyOI.UserCenter.SDK
         {
             using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
-                var result = await client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                var result = await client.PostAsync("/SendSms/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "phone", phone },
