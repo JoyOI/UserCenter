@@ -39,10 +39,6 @@
                             <div class="profile-tabs-section" id="tab-profile">
                                 <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
                                     <p>
-                                        <label>@SR["Nick name"]</label>
-                                        <input type="text" class="form-control" name="nickname" value="@Model.Nickname" placeholder="@SR["Enter a nick name."]" />
-                                    </p>
-                                    <p>
                                         <label>@SR["Sex"]</label>
                                         <select name="sex" class="form-control">
                                             @foreach(var x in Enum.GetNames(typeof(Sex)))

@@ -130,8 +130,8 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return Prompt(x =>
                 {
-                    x.Title = SR["Operation Failed"];
-                    x.Details = SR["The user was not found."];
+                    x.Title = SR["User Not Found"];
+                    x.Details = SR["The specified user is not found."];
                     x.StatusCode = 404;
                 });
             }
@@ -303,7 +303,7 @@ namespace JoyOI.UserCenter.Controllers
                 send = DateTime.Now
             })));
 
-            var content = "欢迎注册JoyOI通行证，您的验证码为：" + code;
+            var content = SR["You are registering a Joy OI ID. The verify code is: {0}", code];
             await Lib.SMS.SendSmsAsync(Configuration["SMS:CorpId"], Configuration["SMS:Pwd"], phone, content);
 
             return View("VerifyCode");
@@ -386,7 +386,7 @@ namespace JoyOI.UserCenter.Controllers
                 return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
-                    x.Details = SR["The username <{0}> is already exists. Please pick another one.", username];
+                    x.Details = SR["The phone number <{0}> is already exists. Please pick another one.", parsedPhone];
                     x.StatusCode = 400;
                 });
             }
