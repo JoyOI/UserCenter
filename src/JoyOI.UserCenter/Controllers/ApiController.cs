@@ -741,10 +741,6 @@ namespace JoyOI.UserCenter.Controllers
             {
                 return ApiResult(SR["The phone number is already exist."]);
             }
-            else if (await DB.Users.AnyAsync(x => x.Email == email))
-            {
-                return ApiResult(SR["The email address is already exist."]);
-            }
             else
             {
                 var user = new User { UserName = username, Email = email, PhoneNumber = phone, PhoneNumberConfirmed = true, AvatarData = email, AvatarSource = AvatarSource.GravatarPolling };
