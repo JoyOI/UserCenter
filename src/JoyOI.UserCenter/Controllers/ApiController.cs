@@ -782,12 +782,12 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                return ApiResult((await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed)).ToString());
+                return ApiResult((await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed)));
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> IsEmailExist(Guid id, string secret, string phone, CancellationToken token)
+        public async Task<IActionResult> IsEmailExist(Guid id, string secret, string email, CancellationToken token)
         {
             if (Application == null)
             {
@@ -803,7 +803,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                return ApiResult((await DB.Users.AnyAsync(x => x.PhoneNumber == phone && x.PhoneNumberConfirmed)).ToString());
+                return ApiResult((await DB.Users.AnyAsync(x => x.Email == email)));
             }
         }
     }
