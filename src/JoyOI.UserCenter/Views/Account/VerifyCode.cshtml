@@ -11,7 +11,7 @@
     <div class="logo">
         <img src="~/images/logo.png" />
     </div>
-    <form asp-action="Register">
+    <form asp-action="VerifyPhone" method="get">
         <div class="content">
             <div class="trapezoid">
                 <div class="trapezoid-main">
@@ -19,10 +19,10 @@
                 </div>
             </div>
             <div class="detail-outer">
-                <div class="textbox-label">@SR["Phone Number"]</div>
-                <input type="text" class="textbox" name="phone" />
+                <div class="textbox-label">@SR["Input Verify Code"]</div>
+                <input type="text" class="textbox" name="code" />
                 <div class="button-outer">
-                    <input type="submit" value="@SR["Send Verify Code"]" class="button" />
+                    <input type="submit" value="@SR["Next"]" class="button" />
                 </div>
             </div>
         </div>

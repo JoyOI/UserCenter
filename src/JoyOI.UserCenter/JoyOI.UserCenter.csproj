@@ -34,6 +34,9 @@
     <PackageReference Include="Pomelo.AspNetCore.Extensions" Version="2.0.0-*" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-*" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.Lolita.MySql" Version="2.0.0-*" />
+    <PackageReference Include="System.Text.Encoding.CodePages">
+      <Version>4.4.0</Version>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

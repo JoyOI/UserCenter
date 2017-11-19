@@ -678,18 +678,13 @@ updateExtensionCoin:
                 }
 
                 var phone = openId.User.PhoneNumber;
-                using (var client = new HttpClient() { BaseAddress = new Uri("http://www.inolink.com") })
-                using (var response = await client.GetAsync($"/ws/BatchSend.aspx?CorpID={ Configuration["SMS:CorpId"] }&Pwd={ Configuration["SMS:Pwd"] }&Mobile={ phone }&Content={ System.Net.WebUtility.UrlEncode(content) }"))
+                if (await Lib.SMS.SendSmsAsync(Configuration["SMS:CorpId"], Configuration["SMS:Pwd"], phone, content))
                 {
-                    var text = await response.Content.ReadAsStringAsync();
-                    if (text == "1")
-                    {
-                        return ApiResult(SR["The SMS sent successfully"]);
-                    }
-                    else
-                    {
-                        return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
-                    }
+                    return ApiResult(SR["The SMS sent successfully"]);
+                }
+                else
+                {
+                    return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
                 }
             }
         }
@@ -711,18 +706,13 @@ updateExtensionCoin:
             }
             else
             {
-                using (var client = new HttpClient() { BaseAddress = new Uri("http://www.inolink.com") })
-                using (var response = await client.GetAsync($"/ws/BatchSend.aspx?CorpID={ Configuration["SMS:CorpId"] }&Pwd={ Configuration["SMS:Pwd"] }&Mobile={ phone }&Content={ System.Net.WebUtility.UrlEncode(content) }"))
+                if (await Lib.SMS.SendSmsAsync(Configuration["SMS:CorpId"], Configuration["SMS:Pwd"], phone, content))
                 {
-                    var text = await response.Content.ReadAsStringAsync();
-                    if (text == "1")
-                    {
-                        return ApiResult(SR["The SMS sent successfully"]);
-                    }
-                    else
-                    {
-                        return ApiResult(SR["The SMS sent failed with code {0}", text], 500);
-                    }
+                    return ApiResult(SR["The SMS sent successfully"]);
+                }
+                else
+                {
+                    return ApiResult(SR["The SMS sent failed."], 500);
                 }
             }
         }

@@ -25,6 +25,7 @@ namespace JoyOI.UserCenter.Controllers
     {
         private static Random _random = new Random();
         private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
+        private static Regex phoneRegex = new Regex("^[+0-9]*$");
         private const string usernameRegexString = "[\u3040-\u309F\u30A0-\u30FF\u4e00-\u9fa5A-Za-z0-9_-]{4,32}";
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
         private static MD5 _md5 = MD5.Create();
@@ -247,59 +248,60 @@ namespace JoyOI.UserCenter.Controllers
         [HttpPost("/Register")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
-            string email,
+            string phone,
             [FromHeader] string Referer,
-            [FromServices] IEmailSender EmailSender,
             [FromServices] AesCrypto Aes,
             CancellationToken token)
         {
-            if (string.IsNullOrEmpty(email)) 
+            if (string.IsNullOrEmpty(phone)) 
             {
                 return _Prompt(x =>
                 {
-                    x.Title = SR["Email is invalid"];
-                    x.Details = SR["The email address cannot be null.", email];
+                    x.Title = SR["Phone number is invalid"];
+                    x.Details = SR["The phone number cannot be null.", phone];
                     x.StatusCode = 400;
                 });
             }
-            else if (!emailRegex.IsMatch(email))
+            else if (!phoneRegex.IsMatch(phone))
             {
                 return _Prompt(x =>
                 {
-                    x.Title = SR["Email is invalid"];
-                    x.Details = SR["The email address <{0}> is invalid.", email];
+                    x.Title = SR["Phone number is invalid"];
+                    x.Details = SR["The phone number {0} is invalid.", phone];
                     x.StatusCode = 400;
                 });
             }
-            else if (await DB.Users.AnyAsync(x => x.Email == email, token))
+            else if (await DB.Users.AnyAsync(x => x.PhoneNumber == phone, token))
             {
                 return _Prompt(x =>
                 {
-                    x.Title = SR["Email is invalid"];
-                    x.Details = SR["The email address <{0}> is already existed.", email];
+                    x.Title = SR["Phone number is invalid"];
+                    x.Details = SR["The phone number {0} is already existed.", phone];
                     x.StatusCode = 400;
                 });
             }
 
-            var code = Aes.Encrypt(JsonConvert.SerializeObject(new Tuple<string, DateTime, string>(email, DateTime.Now.AddHours(2), Referer)));
-            await EmailSender.SendEmailAsync(email, SR["JoyOI Register Verification"], SR["<p>Please click the following link to continue register.</p><p><a href='{0}'>Click here.</a></p>", Request.Scheme + "://" + Request.Host + Url.Action("VerifyEmail", new { code = code })]);
-
-            return _Prompt(x =>
+            var code = _random.Next(100000, 999999);
+            Response.Cookies.Append("register", Aes.Encrypt(JsonConvert.SerializeObject(new
             {
-                x.Title = SR["Succeeded"];
-                x.Details = SR["We have sent you an email which contains a URL to continue registering operations."];
-                x.RedirectText = SR["Go to email"];
-                x.RedirectUrl = "//mail." + email.Split('@')[1];
-            });
+                code = code.ToString(),
+                phone = phone,
+                expire = DateTime.Now.AddMinutes(30)
+            })));
+
+            var content = "欢迎注册JoyOI通行证，您的验证码为：" + code;
+            await Lib.SMS.SendSmsAsync(Configuration["SMS:CorpId"], Configuration["SMS:Pwd"], phone, content);
+
+            return View("VerifyCode");
         }
 
-        [HttpGet("/Register/VerifyEmail")]
-        public IActionResult VerifyEmail(string code, [FromServices] AesCrypto Aes)
+        [HttpGet("/Register/VerifyPhone")]
+        public IActionResult VerifyPhone(string code, [FromServices] AesCrypto Aes)
         {
             try
             {
-                var obj = JsonConvert.DeserializeObject<Tuple<string, DateTime, string>>(Aes.Decrypt(code));
-                if (obj.Item2 < DateTime.Now)
+                var obj = JsonConvert.DeserializeObject<dynamic>(Aes.Decrypt(Request.Cookies["register"]));
+                if (obj.expire < DateTime.Now)
                 {
                     return _Prompt(x =>
                     {
@@ -310,9 +312,17 @@ namespace JoyOI.UserCenter.Controllers
                         x.RedirectUrl = Url.Action("Index");
                     });
                 }
-                ViewBag.Email = obj.Item1;
-                ViewBag.AesEmail = Aes.Encrypt(obj.Item1);
-                ViewBag.Referer = obj.Item3;
+                else if (obj.code != code)
+                {
+                    return _Prompt(x =>
+                    {
+                        x.Title = SR["Invalid Code"];
+                        x.Details = SR["Your code is invalid."];
+                        x.HideBack = false;
+                    });
+                }
+                ViewBag.Phone = obj.phone;
+                ViewBag.AesPhone = Aes.Encrypt(obj.phone.ToString());
                 return View();
             }
             catch
@@ -328,9 +338,10 @@ namespace JoyOI.UserCenter.Controllers
             }
         }
 
-        [HttpPost("/Register/VerifyEmail")]
+        [HttpPost("/Register/VerifyPhone")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> VerifyEmail(
+        public async Task<IActionResult> VerifyPhone(
+            string phone,
             string email,
             string username,
             string password,
@@ -340,23 +351,41 @@ namespace JoyOI.UserCenter.Controllers
             [FromServices] AesCrypto Aes,
             CancellationToken token)
         {
-            string parsedEmail = null;
+            string parsedPhone = null;
             try
             {
-                parsedEmail = Aes.Decrypt(email);
+                parsedPhone = Aes.Decrypt(phone);
             }
             catch
             {
                 return _Prompt(x =>
                 {
                     x.Title = SR["Register Failed"];
-                    x.Details = SR["Your email address is invalid, please open this page from the verification email content."];
+                    x.Details = SR["Your phone number is invalid."];
                     x.StatusCode = 400;
                     x.HideBack = true;
                 });
             }
 
-            if (await DB.Users.AnyAsync(x => x.UserName == username, token))
+            if (await DB.Users.AnyAsync(x => x.PhoneNumber == parsedPhone, token))
+            {
+                return _Prompt(x =>
+                {
+                    x.Title = SR["Register Failed"];
+                    x.Details = SR["The username <{0}> is already exists. Please pick another one.", username];
+                    x.StatusCode = 400;
+                });
+            }
+            else if (await DB.Users.AnyAsync(x => x.Email == email, token))
+            {
+                return _Prompt(x =>
+                {
+                    x.Title = SR["Register Failed"];
+                    x.Details = SR["The email <{0}> is already exists. Please pick another one.", email];
+                    x.StatusCode = 400;
+                });
+            }
+            else if (await DB.Users.AnyAsync(x => x.UserName == username, token))
             {
                 return _Prompt(x =>
                 {
@@ -383,24 +412,17 @@ namespace JoyOI.UserCenter.Controllers
                     x.StatusCode = 400;
                 });
             }
-            else if (await DB.Users.AnyAsync(x => x.Email == parsedEmail, token))
-            {
-                return _Prompt(x =>
-                {
-                    x.Title = SR["Register Failed"];
-                    x.Details = SR["The email address <{0}> is already existed.", email];
-                    x.StatusCode = 400;
-                });
-            }
 
             var user = new User
             {
                 UserName = username,
                 Nickname = nickname,
-                Email = parsedEmail.ToLower(),
-                EmailConfirmed = true,
+                PhoneNumber = phone,
+                PhoneNumberConfirmed = true,
+                Email = email.ToLower(),
+                EmailConfirmed = false,
                 AvatarSource = AvatarSource.GravatarPolling,
-                AvatarData = parsedEmail
+                AvatarData = email
             };
 
             var result = await UserManager.CreateAsync(user, password);

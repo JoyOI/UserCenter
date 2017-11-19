@@ -11,7 +11,7 @@
     <div class="logo">
         <img src="~/images/logo.png" />
     </div>
-    <form asp-action="VerifyEmail">
+    <form asp-action="VerifyPhone">
         <div class="content">
             <div class="trapezoid">
                 <div class="trapezoid-main">
@@ -19,16 +19,16 @@
                 </div>
             </div>
             <div class="detail-outer">
-                <div class="textbox-label">@SR["Email address"]</div>
-                <input type="text" class="textbox" value="@ViewBag.Email" disabled />
+                <div class="textbox-label">@SR["Phone number"]</div>
+                <input type="text" class="textbox" value="@ViewBag.Phone" disabled />
             </div>
             <div class="detail-outer">
                 <div class="textbox-label">@SR["Username"]</div>
                 <input type="text" class="textbox" name="username" />
             </div>
             <div class="detail-outer">
-                <div class="textbox-label">@SR["Nickname"]</div>
-                <input type="text" class="textbox" name="nickname" />
+                <div class="textbox-label">@SR["Email address"]</div>
+                <input type="text" class="textbox" name="email" />
             </div>
             <div class="detail-outer">
                 <div class="textbox-label">@SR["Password"]</div>
@@ -42,8 +42,7 @@
                 <input type="submit" value="@SR["Submit"]" class="button" />
             </div>
         </div>
-        <input type="hidden" value="@ViewBag.AesEmail" name="email" />
-        <input type="hidden" value="@ViewBag.Referer" name="referer" />
+        <input type="hidden" value="@ViewBag.AesPhone" name="phone" />
     </form>
     <div class="copyright">Copyright © @DateTime.Now.Year @SR["Beijing Tsba Education And Technologies Co., Ltd."]</div>
 </body>
