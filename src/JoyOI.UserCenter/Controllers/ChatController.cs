@@ -34,7 +34,7 @@ namespace JoyOI.UserCenter.Controllers
                 });
 
             await DB.SaveChangesAsync(token);
-            await hub.Clients.Group(receiverId.ToString()).InvokeAsync("onMessageReceived");
+            await hub.Clients.Group(receiverId.ToString()).InvokeAsync("onMessageReceived", User.Current.Id);
             return Content("ok");
         }
 
