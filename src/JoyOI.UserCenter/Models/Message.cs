@@ -8,7 +8,7 @@ namespace JoyOI.UserCenter.Models
         public Guid Id { get; set; }
 
         [ForeignKey("Sender")]
-        public Guid SenderId { get; set; }
+        public Guid? SenderId { get; set; }
 
         public virtual User Sender { get; set; }
 
