@@ -1,0 +1,18 @@
+﻿body {
+    margin: 0;
+    padding: 0;
+    background: #35322d;
+}
+
+.menu {
+    height: 60px;
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    font-size: 18px;
+    line-height: 60px;
+    background-color: #605c56;
+    color: #fff;
+    text-align: center;
+}

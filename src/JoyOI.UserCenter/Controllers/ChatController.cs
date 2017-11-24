@@ -13,6 +13,29 @@ namespace JoyOI.UserCenter.Controllers
 {
     public class ChatController : BaseController
     {
+        [HttpGet("[controller]/{appId:Guid}/{openId:Guid}/{accessToken}")]
+        [HttpGet("[controller]/preview")]
+        public async Task<IActionResult> Index( Guid appId, Guid openId, string accessToken, CancellationToken token)
+        {
+            //var aes = new AesCrypto(Startup.Config["Chat:PrivateKey"], Startup.Config["Chat:IV"]);
+            //var open = await DB.OpenIds
+            //    .Include(x => x.User)
+            //    .Where(x => x.ApplicationId == appId)
+            //    .Where(x => x.Application.Type == ApplicationType.Official)
+            //    .Where(x => x.Id == openId)
+            //    .Where(x => x.AccessToken == aes.Decrypt(accessToken))
+            //    .SingleOrDefaultAsync(token);
+
+            //if (open == null)
+            //{
+            //    return Content("登录失败");
+            //}
+
+            //var user = open.User;
+            //await SignInManager.SignInAsync(user, false);
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Send(
             [FromServices] IHubContext<MessageHub> hub,
