@@ -37,7 +37,7 @@
                                 <li class="profile-tabs-item" onclick="openTab('#tab-currency')">@SR["Currency"]</li>
                             </ul>
                             <div class="profile-tabs-section" id="tab-profile">
-                                <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id">
+                                <form asp-action="Profile" asp-controller="Account" asp-route-id="@Model.Id" enctype="multipart/form-data">
                                     <p>
                                         <label>@SR["Sex"]</label>
                                         <select name="sex" class="form-control">
