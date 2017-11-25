@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no" />
     <link href="~/styles/chat.css" rel="stylesheet" />
     <link href="~/styles/font-awesome.css" rel="stylesheet" />
+    <script src="~/scripts/jquery-3.2.1.min.js"></script>
     <script src="~/scripts/vue.js"></script>
     <script src="~/scripts/vue-router.js"></script>
 </head>
@@ -26,7 +27,7 @@
             </tr>
         </table>
     </div>
-    <div class="container">
+    <div class="container" style="display: none">
         <div class="contact-item">
             <img class="contact-avatar" src="~/images/non-avatar.png" />
             <div class="contact-body">
@@ -64,7 +65,38 @@
             <div class="clear"></div>
         </div>
     </div>
+    <div class="container" style="display: none">
+        <div class="search">
+            <i class="fa fa-search search-icon"></i>
+            <input type="text" class="search-box" placeholder="搜索用户名..." />
+        </div>
+        <div class="contact-item">
+            <img class="contact-avatar" src="~/images/non-avatar.png" />
+            <div class="contact-result">
+                <div class="contact-user">yiszhe</div>
+                <div class="contact-status"><span class="contact-online">●</span> 在线</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="contact-item">
+            <img class="contact-avatar" src="~/images/non-avatar.png" />
+            <div class="contact-result">
+                <div class="contact-user">yiszhe</div>
+                <div class="contact-status"><span class="contact-offline">●</span> 离线</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="message-time"><div class="message-time-item">20:52</div></div>
+        <div class="message message-left">blablablablablablablablablablablablablablabla</div>
+        <div class="message message-right">blablablablablablablablablablablablablablabla</div>
+    </div>
     <div class="tab">
+        <textarea class="message-box" placeholder="输入欲发送的内容..."></textarea>
+        <div class="message-send">发送</div>
+    </div>
+    <div class="tab" style="display: none">
         <table class="tab-table">
             <tr>
                 <td>
@@ -75,8 +107,8 @@
                 </td>
                 <td>
                     <div class="tab-item">
-                        <i class="tab-item-icon fa fa-user"></i>
-                        <div class="tab-item-text">联系人</div>
+                        <i class="tab-item-icon fa fa-search"></i>
+                        <div class="tab-item-text">找人</div>
                     </div>
                 </td>
                 <td>
@@ -88,5 +120,23 @@
             </tr>
         </table>
     </div>
+    <script>
+        function countLine() {
+            var ret = 0;
+            var str = $('.message-box').val();
+            for (var i = 0; i < str.length; i++) { 
+                if (str[i] == '\n')
+                    ret++;
+            }
+            ret++;
+            return ret > 4 ? 4 : ret;
+        }
+
+        $('.message-box').keyup(function () {
+            var line = countLine();
+            $('.message-box').height(26 * line);
+            $('.message-box').parents('.tab').height(50 + (line - 1) * 26);
+        });
+    </script>
 </body>
 </html>
