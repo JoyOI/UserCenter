@@ -1,18 +1,156 @@
 ﻿body {
     margin: 0;
     padding: 0;
-    background: #35322d;
+    background: #fafafa;
 }
 
 .menu {
-    height: 60px;
+    height: 50px;
     width: 100%;
-    position: relative;
+    position: fixed;
     top: 0;
     left: 0;
-    font-size: 18px;
-    line-height: 60px;
-    background-color: #605c56;
+    font-size: 16px;
+    line-height: 50px;
+    background-color: #1c92ec;
     color: #fff;
+    z-index: 100;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.menu-table {
     text-align: center;
+    width: 100%;
+}
+
+.menu-table-left {
+    padding-left: 15px;
+    text-align: left;
+    width: 50px;
+}
+
+.menu-table-right {
+    padding-right: 15px;
+    text-align: right;
+    width: 50px;
+}
+
+.container {
+    padding-top: 51px;
+    padding-bottom: 51px;
+    width: 100%;
+    position: fixed;
+    height: calc(100% - 51px - 51px);
+    overflow-y: auto;
+    top: 0;
+    left: 0;
+    z-index: 50;
+}
+
+.contact-item {
+    padding: 15px;
+    cursor: pointer;
+}
+
+.contact-avatar {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    float: left;
+}
+
+.contact-body {
+    width: calc(100% - 48px - 60px - 30px);
+    height: 48px;
+    padding: 0 15px;
+    display: inline-block;
+    float: left;
+}
+
+.contact-name, .contact-count {
+    color: #888;
+    font-size: 14px;
+    line-height: 26px;
+}
+
+.contact-message, .contact-time {
+    color: #aaa;
+    font-size: 10px;
+    line-height: 22px;
+}
+
+.contact-time, .contact-count {
+    text-align: right;
+}
+
+.contact-side {
+    width: 60px;
+    height: 48px;
+    display: inline-block;
+    float: left;
+}
+
+.clear {
+    clear: both;
+}
+
+.contact-count-balloon {
+    background-color: #e64d50;
+    border-radius: 48px;
+    text-align: center;
+    color: #fff;
+    font-size: 10px;
+    display: inline-block;
+    padding: 0 5px;
+    min-width: 10px;
+    line-height: 20px;
+}
+
+.contact-item:hover {
+    background-color: #ebebec;
+}
+
+.tab {
+    height: 50px;
+    position: fixed;
+    z-index: 100;
+    background: #fff;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.tab-table {
+    table-layout: fixed;
+    text-align: center;
+    border-collapse: collapse;
+    width: 100%;
+    color: #888;
+}
+
+.tab-item {
+    height: 48px;
+    cursor: pointer;
+}
+
+    .tab-item.active {
+        color: #0181ef;
+    }
+
+    .tab-item:hover {
+        color: #ff952d;
+    }
+
+.tab-item-icon {
+    font-size: 14px;
+    line-height: 14px;
+    margin-top: 8px;
+}
+
+.tab-item-text {
+    font-size: 10px;
+    line-height: 10px;
+    margin-top: 4px;
 }
