@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Linq;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,8 @@ namespace JoyOI.UserCenter.Models
                 });
                 await SaveChangesAsync(token);
             }
+
+            Users.Where(x => x.Online > 0).SetField(x => x.Online).WithValue(0).Update();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -103,6 +106,7 @@ namespace JoyOI.UserCenter.Models
             {
                 e.HasIndex(x => x.Sex);
                 e.HasIndex(x => x.Email).IsUnique();
+                e.HasIndex(x => x.Online);
             });
 
             builder.Entity<UserLog>(e => 

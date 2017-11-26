@@ -61,7 +61,11 @@ namespace JoyOI.UserCenter
             services.AddSmartUser<User, Guid>();
 
             services.AddEntityFrameworkMySql()
-                .AddDbContextPool<UserCenterContext>(x => x.UseMySql(Config["Data:MySQL"]));
+                .AddDbContextPool<UserCenterContext>(x => 
+                {
+                    x.UseMySql(Config["Data:MySQL"]);
+                    x.UseMySqlLolita();
+                });
 
             services.AddIdentity<User, Role>(x=> 
             {
@@ -97,6 +101,10 @@ namespace JoyOI.UserCenter
             app.UseSignalR(x => x.MapHub<MessageHub>("hubs"));
             app.UseBlobStorage("/js/jquery.pomelo.fileupload.js");
             app.UseAuthentication();
+            app.UseSignalR(x =>
+            {
+                x.MapHub<MessageHub>("signalr/message");
+            });
             app.MapWhen(x => x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvc(y => y.MapRoute("apiRoute", "{action}/{id?}", new { controller = "Api" })));
             app.MapWhen(x => !x.Request.Host.ToString().StartsWith(Config["Domain:Api"]), x => x.UseMvcWithDefaultRoute());
             app.ApplicationServices.GetRequiredService<UserCenterContext>().InitializeAsync(app.ApplicationServices);

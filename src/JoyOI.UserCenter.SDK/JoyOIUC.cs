@@ -269,5 +269,33 @@ namespace JoyOI.UserCenter.SDK
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
         }
+
+        public async Task<bool> HasUnreadMessage(Guid openId)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/HasUnreadMessage/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "openId", openId.ToString() }
+                }));
+                var ret = await result.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
+            }
+        }
+
+        public string GenerateChatWindowUrl(Guid openId, string toUser = null)
+        {
+            var pk = _configuration["Chat:PrivateKey"];
+            var iv = _configuration["Chat:IV"];
+            var appid = _configuration["JoyOI:AppId"];
+            var secret = _configuration["JoyOI:Secret"];
+            var baseUrl = _configuration["JoyOI:ChatUrl"];
+            var aes = new AesCrypto(pk, iv);
+            if (toUser == null)
+                return $"{ baseUrl }/{ appid }/{ openId }/{ aes.Encrypt(secret) }";
+            else
+                return $"{ baseUrl }/{ appid }/{ openId }/{ aes.Encrypt(secret) }#{ toUser }";
+        }
     }
 }

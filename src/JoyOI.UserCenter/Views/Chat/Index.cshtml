@@ -1,8 +1,6 @@
 ﻿@{
     Layout = null;
 }
-
-
 <!DOCTYPE html>
 
 <html>
@@ -14,113 +12,182 @@
     <link href="~/styles/chat.css" rel="stylesheet" />
     <link href="~/styles/font-awesome.css" rel="stylesheet" />
     <script src="~/scripts/jquery-3.2.1.min.js"></script>
+    <script src="~/scripts/signalr-client.min.js"></script>
     <script src="~/scripts/vue.js"></script>
-    <script src="~/scripts/vue-router.js"></script>
+    <script src="~/scripts/moment.js"></script>
 </head>
 <body>
-    <div class="menu">
-        <table class="menu-table">
-            <tr>
-                <td class="menu-table-left"></td>
-                <td>站内信</td>
-                <td class="menu-table-right"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="container" style="display: none">
-        <div class="contact-item">
-            <img class="contact-avatar" src="~/images/non-avatar.png" />
-            <div class="contact-body">
-                <div class="contact-name">yiszhe</div>
-                <div class="contact-message">Hello World</div>
-            </div>
-            <div class="contact-side">
-                <div class="contact-time">2 hrs ago</div>
-                <div class="contact-count"><div class="contact-count-balloon">1</div></div>
-            </div>
-            <div class="clear"></div>
+    <div id="app">
+        <div class="menu">
+            <table class="menu-table">
+                <tr>
+                    <td class="menu-table-left"><span v-if="current === 'chat'" style="cursor: pointer;" v-on:click="back"><i class="fa fa-angle-left"></i> 返回</span></td>
+                    <td>{{ title }}</td>
+                    <td class="menu-table-right"></td>
+                </tr>
+            </table>
         </div>
-        <div class="contact-item">
-            <img class="contact-avatar" src="~/images/non-avatar.png" />
-            <div class="contact-body">
-                <div class="contact-name">yiszhe</div>
-                <div class="contact-message">Hello World</div>
+        <div class="container" v-if="current === 'history'">
+            <div class="contact-item" v-for="x in histories" v-on:click="chatTo(x.id, x.username)">
+                <img class="contact-avatar" v-bind:src="x.avatarUrl" />
+                <div class="contact-body">
+                    <div class="contact-name">{{ x.username }}</div>
+                    <div class="contact-message">{{ x.message }}</div>
+                </div>
+                <div class="contact-side">
+                    <div class="contact-time">{{ parseDate(x.time) }}</div>
+                    <div class="contact-count" v-if="x.unread"><div class="contact-count-balloon">{{ x.unread }}</div></div>
+                </div>
+                <div class="clear"></div>
             </div>
-            <div class="contact-side">
-                <div class="contact-time">2 hrs ago</div>
-                <div class="contact-count"><div class="contact-count-balloon">1</div></div>
-            </div>
-            <div class="clear"></div>
         </div>
-        <div class="contact-item">
-            <img class="contact-avatar" src="~/images/non-avatar.png" />
-            <div class="contact-body">
-                <div class="contact-name">yiszhe</div>
-                <div class="contact-message">Hello World</div>
+        <div class="container" v-if="current === 'search'">
+            <div class="search">
+                <i class="fa fa-search search-icon"></i>
+                <input type="text" class="search-box" placeholder="搜索用户名..." v-on:keyup="searchKeyUp" />
             </div>
-            <div class="contact-side">
-                <div class="contact-time">2 hrs ago</div>
-                <div class="contact-count"><div class="contact-count-balloon">1</div></div>
+            <div class="contact-item" v-for="x in searchResult" v-on:click="chatTo(x.id, x.username)">
+                <img class="contact-avatar" v-bind:src="x.avatarUrl" />
+                <div class="contact-result">
+                    <div class="contact-user">{{ x.username }}</div>
+                    <div class="contact-status" v-if="x.isOnline"><span class="contact-online">●</span> 在线</div>
+                    <div class="contact-status" v-if="!x.isOnline"><span class="contact-offline">●</span> 离线</div>
+                </div>
+                <div class="clear"></div>
             </div>
-            <div class="clear"></div>
         </div>
-    </div>
-    <div class="container" style="display: none">
-        <div class="search">
-            <i class="fa fa-search search-icon"></i>
-            <input type="text" class="search-box" placeholder="搜索用户名..." />
+        <div class="container chat-container" v-if="current === 'chat'">
+            <template v-for="tg in chat">
+                <div class="message-time"><div class="message-time-item">{{ parseDate(tg.time) }}</div></div>
+                <div v-for="x in tg.messages">
+                    <div class="message" v-bind:class="{ 'message-left': x.receiver.isMe, 'message-right': x.sender.isMe }">{{ x.content }}</div>
+                    <div class="clear"></div>
+                </div>
+            </template>
         </div>
-        <div class="contact-item">
-            <img class="contact-avatar" src="~/images/non-avatar.png" />
-            <div class="contact-result">
-                <div class="contact-user">yiszhe</div>
-                <div class="contact-status"><span class="contact-online">●</span> 在线</div>
-            </div>
-            <div class="clear"></div>
+        <div class="tab" v-if="current === 'chat'">
+            <textarea class="message-box" placeholder="输入欲发送的内容..." v-on:keyup="msgBoxKeyUp"></textarea>
+            <div class="message-send" v-on:click="send">发送</div>
         </div>
-        <div class="contact-item">
-            <img class="contact-avatar" src="~/images/non-avatar.png" />
-            <div class="contact-result">
-                <div class="contact-user">yiszhe</div>
-                <div class="contact-status"><span class="contact-offline">●</span> 离线</div>
-            </div>
-            <div class="clear"></div>
+        <div class="tab" v-if="current !== 'chat'">
+            <table class="tab-table"> 
+                <tr>
+                    <td>
+                        <div class="tab-item" v-bind:class="{ 'active': current === 'history' }" v-on:click="current = 'history'">
+                            <i class="tab-item-icon fa fa-comment-o"></i>
+                            <div class="tab-item-text">消息</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tab-item" v-bind:class="{ 'active': current === 'search' }" v-on:click="current = 'search'">
+                            <i class="tab-item-icon fa fa-search"></i>
+                            <div class="tab-item-text">找人</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="tab-item" v-bind:class="{ 'active': current === 'system' }" v-on:click="current = 'system'">
+                            <i class="tab-item-icon fa fa-volume-up"></i>
+                            <div class="tab-item-text">系统消息</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
-    </div>
-    <div class="container">
-        <div class="message-time"><div class="message-time-item">20:52</div></div>
-        <div class="message message-left">blablablablablablablablablablablablablablabla</div>
-        <div class="message message-right">blablablablablablablablablablablablablablabla</div>
-    </div>
-    <div class="tab">
-        <textarea class="message-box" placeholder="输入欲发送的内容..."></textarea>
-        <div class="message-send">发送</div>
-    </div>
-    <div class="tab" style="display: none">
-        <table class="tab-table">
-            <tr>
-                <td>
-                    <div class="tab-item active">
-                        <i class="tab-item-icon fa fa-comment-o"></i>
-                        <div class="tab-item-text">消息</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="tab-item">
-                        <i class="tab-item-icon fa fa-search"></i>
-                        <div class="tab-item-text">找人</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="tab-item">
-                        <i class="tab-item-icon fa fa-volume-up"></i>
-                        <div class="tab-item-text">系统消息</div>
-                    </div>
-                </td>
-            </tr>
-        </table>
     </div>
     <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                current: 'history',
+                target: null,
+                searchResult: [],
+                histories: [],
+                chat: {},
+                signalr: new signalR.HubConnection('/signalr/message')
+            },
+            created: function () {
+                var self = this;
+                self.signalr.on('onMessageReceived', (id) => {
+                    self.loadContacts();
+                    if (target.id == id) {
+                        self.loadMessages(id);
+                    }
+                });
+                self.signalr.start();
+                self.loadContacts();
+                var href = window.location.toString();
+                if (href.indexOf('#') > 0) {
+                    var username = decodeURIComponent(href.split('#')[1]);
+                    $.get('/chat/getid', { username: username }, function (id) {
+                        self.chatTo(id, username);
+                    });
+                }
+            },
+            computed: {
+                title: function () { 
+                    return this.current === 'chat' ? this.target.username : '站内信';
+                }
+            },
+            methods: {
+                searchKeyUp: function () { 
+                    var self = this;
+                    var txt = $('.search-box').val();
+                    $.getJSON('/chat/findcontact', { name: txt }, function (data) { 
+                        self.searchResult = data;
+                    });
+                },
+                msgBoxKeyUp: function () {
+                    var line = countLine();
+                    $('.message-box').height(26 * line);
+                    $('.message-box').parents('.tab').height(50 + (line - 1) * 26);
+                },
+                chatTo: function (id, username) {
+                    this.target = { id: id, username: username };
+                    this.current = 'chat';
+                    this.loadMessages(id);
+                },
+                loadMessages: function (id) {
+                    var self = this;
+                    if (self.target && self.target.id !== id)
+                        self.chat = [];
+                    $.getJSON('/chat/getmessages', { userId: id }, function (data) { 
+                        self.chat = data;
+                        $('.chat-container').scrollTop(9999);
+                        setTimeout(function () { $('.chat-container').scrollTop(9999); }, 500);
+                    });
+                },
+                loadContacts: function () {
+                    var self = this;
+                    $.getJSON('/chat/getcontacts', {}, function (data) {
+                        self.histories = data;
+                    });
+                },
+                back: function () { 
+                    this.current = 'history';
+                },
+                send: function () { 
+                    var self = this;
+                    var id = self.target.id;
+                    var text = $('.message-box').val();
+                    $.post('/chat/send', { receiverId: id, text: text }, function () { 
+                        $('.message-box').val('');
+                        self.msgBoxKeyUp();
+                        self.loadMessages(id);
+                    });
+                },
+                parseDate: function (time) {
+                    if (time[time.length - 1] !== 'Z')
+                        time += 'Z';
+                    var t = new Date(time);
+                    var today = new Date(new Date().setHours(0, 0, 0, 0));
+                    if (t > today)
+                        return moment(t).format('HH:mm');
+                    else
+                        moment(t).format('YYYY-MM-DD HH:mm');
+                }
+            }
+        });
+
         function countLine() {
             var ret = 0;
             var str = $('.message-box').val();
@@ -131,12 +198,6 @@
             ret++;
             return ret > 4 ? 4 : ret;
         }
-
-        $('.message-box').keyup(function () {
-            var line = countLine();
-            $('.message-box').height(26 * line);
-            $('.message-box').parents('.tab').height(50 + (line - 1) * 26);
-        });
     </script>
 </body>
 </html>

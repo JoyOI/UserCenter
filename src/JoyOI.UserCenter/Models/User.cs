@@ -45,5 +45,7 @@ namespace JoyOI.UserCenter.Models
         public DateTime RegisterTime { get; set; } = DateTime.Now;
 
         public DateTime ActiveTime { get; set; } = DateTime.Now;
+
+        public int Online { get; set; }
     }
 }

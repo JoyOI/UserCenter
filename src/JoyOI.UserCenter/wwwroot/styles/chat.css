@@ -78,6 +78,7 @@
     color: #aaa;
     font-size: 10px;
     line-height: 22px;
+    overflow: hidden;
 }
 
 .contact-time, .contact-count {
@@ -220,7 +221,7 @@
     padding: 15px;
     background: #eeeeee;
     border-radius: 8px;
-    width: 70%;
+    max-width: 70%;
     word-wrap: break-word;
 }
 
@@ -275,4 +276,5 @@
     position: fixed;
     bottom: 18px;
     right: 0;
+    cursor: pointer;
 }

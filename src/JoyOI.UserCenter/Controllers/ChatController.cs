@@ -13,27 +13,34 @@ namespace JoyOI.UserCenter.Controllers
 {
     public class ChatController : BaseController
     {
-        [HttpGet("[controller]/{appId:Guid}/{openId:Guid}/{accessToken}")]
-        [HttpGet("[controller]/preview")]
-        public async Task<IActionResult> Index( Guid appId, Guid openId, string accessToken, CancellationToken token)
+        [HttpGet("[controller]/{appId:Guid}/{openId:Guid}/{secret}")]
+        [HttpGet("[controller]/window")]
+        public async Task<IActionResult> Index(Guid appId, Guid openId, string secret, CancellationToken token)
         {
-            //var aes = new AesCrypto(Startup.Config["Chat:PrivateKey"], Startup.Config["Chat:IV"]);
-            //var open = await DB.OpenIds
-            //    .Include(x => x.User)
-            //    .Where(x => x.ApplicationId == appId)
-            //    .Where(x => x.Application.Type == ApplicationType.Official)
-            //    .Where(x => x.Id == openId)
-            //    .Where(x => x.AccessToken == aes.Decrypt(accessToken))
-            //    .SingleOrDefaultAsync(token);
+            if (User.Current != null)
+            {
+                return View();
+            }
+            else
+            {
+                var aes = new AesCrypto(Startup.Config["Chat:PrivateKey"], Startup.Config["Chat:IV"]);
+                var open = await DB.OpenIds
+                    .Include(x => x.User)
+                    .Where(x => x.ApplicationId == appId)
+                    .Where(x => x.Application.Type == ApplicationType.Official)
+                    .Where(x => x.Application.Secret == aes.Decrypt(secret))
+                    .Where(x => x.Id == openId)
+                    .SingleOrDefaultAsync(token);
 
-            //if (open == null)
-            //{
-            //    return Content("登录失败");
-            //}
+                if (open == null)
+                {
+                    return Content("登录失败");
+                }
 
-            //var user = open.User;
-            //await SignInManager.SignInAsync(user, false);
-            return View();
+                var user = open.User;
+                await SignInManager.SignInAsync(user, false);
+                return View();
+            }
         }
 
         [HttpPost]
@@ -62,15 +69,23 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetId(string username, CancellationToken token)
+        {
+            var user = await DB.Users.Where(x => x.UserName == username).SingleAsync(token);
+            return Content(user.Id.ToString());
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetContacts(CancellationToken token)
         {
-            var query = await DB.Messages
+            var query = DB.Messages
                 .Include(x => x.Sender)
                 .Include(x => x.Receiver)
                 .Where(x => x.ReceiverId == User.Current.Id || x.SenderId == User.Current.Id)
                 .OrderByDescending(x => x.SendTime)
+                .DistinctBy(x => x.SenderId == User.Current.Id ? x.ReceiverId : x.SenderId)
                 .Take(20)
-                .ToListAsync(token);
+                .ToList();
 
             var ret = new List<object>(20);
 
@@ -80,20 +95,26 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     ret.Add(new
                     {
+                        id = x.SenderId,
                         username = x.Sender.UserName,
                         avatarUrl = Url.Action("GetAvatar", "Account", new { id = x.SenderId.HasValue ? x.SenderId : default(Guid) }),
                         isRoot = x.SenderId.HasValue ? await User.Manager.IsInAnyRolesAsync(x.Sender, "Root") : true,
-                        time = x.SendTime
+                        time = x.SendTime,
+                        unread = DB.Messages.Where(y => !y.IsRead && y.ReceiverId == User.Current.Id && y.SenderId == x.SenderId).Count(),
+                        message = x.Content
                     });
                 }
                 else
                 {
                     ret.Add(new
                     {
+                        id = x.ReceiverId,
                         username = x.Receiver.UserName,
                         avatarUrl = Url.Action("GetAvatar", "Account", new { id = x.ReceiverId }),
                         isRoot = await User.Manager.IsInAnyRolesAsync(x.Receiver, "Root"),
-                        time = x.SendTime
+                        time = x.SendTime,
+                        unread = DB.Messages.Where(y => !y.IsRead && y.ReceiverId == User.Current.Id && y.SenderId == x.ReceiverId).Count(),
+                        message = x.Content
                     });
                 }
             }
@@ -109,8 +130,8 @@ namespace JoyOI.UserCenter.Controllers
                 .Include(x => x.Receiver)
                 .Where(x => x.ReceiverId == User.Current.Id || x.SenderId == User.Current.Id)
                 .OrderByDescending(x => x.ReceiveTime)
-                .Skip(page * 20)
-                .Take(20)
+                .Skip(page * 50)
+                .Take(50)
                 .ToListAsync(token);
 
             var target = await User.Manager.FindByIdAsync(userId.ToString());
@@ -137,9 +158,12 @@ namespace JoyOI.UserCenter.Controllers
                     isMe = User.Current.Id == x.ReceiverId
                 },
                 content = x.Content,
-                time = x.SendTime,
+                time = new DateTime(x.SendTime.Year, x.SendTime.Month, x.SendTime.Day, x.SendTime.Hour, x.SendTime.Minute, 0),
                 isRead = x.IsRead
-            });
+            })
+            .GroupBy(x => x.time)
+            .Select(x => new { time = x.Key, messages = x.ToList() })
+            .ToList();
 
             DB.Messages
                 .Where(x => x.ReceiverId == User.Current.Id && x.SenderId == userId)
@@ -153,6 +177,7 @@ namespace JoyOI.UserCenter.Controllers
         public async Task<IActionResult> FindContact(string name, CancellationToken token)
         {
             var ret = (await DB.Users
+                .Where(x => x.UserName != User.Current.UserName)
                 .Where(x => x.UserName.Contains(name))
                 .Take(5)
                 .ToListAsync(token))
@@ -161,7 +186,8 @@ namespace JoyOI.UserCenter.Controllers
                     id = x.Id,
                     username = x.UserName,
                     avatarUrl = Url.Action("GetAvatar", "Account", new { id = x.Id }),
-                    isRoot = User.Manager.IsInAnyRolesAsync(x, "Root")
+                    isRoot = User.Manager.IsInAnyRolesAsync(x, "Root"),
+                    isOnline = x.Online > 0
                 });
 
             return Json(ret);

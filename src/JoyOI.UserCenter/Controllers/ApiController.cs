@@ -823,5 +823,35 @@ namespace JoyOI.UserCenter.Controllers
                 return ApiResult((await DB.Users.AnyAsync(x => x.UserName == username)));
             }
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> HasUnreadMessage(Guid id, string secret, Guid openId, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 404);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                var uid = await DB.OpenIds.Where(x => x.Id == openId).Select(x => x.UserId).FirstAsync(token);
+                if (await DB.Messages.AnyAsync(x => x.ReceiverId == uid && !x.IsRead))
+                {
+                    return ApiResult(true);
+                }
+                else
+                {
+                    return ApiResult(false);
+                }
+            }
+        }
     }
 }
