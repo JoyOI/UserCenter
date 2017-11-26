@@ -182,7 +182,7 @@ namespace JoyOI.UserCenter.Controllers
             var ret = (await DB.Users
                 .Where(x => x.UserName != User.Current.UserName)
                 .Where(x => x.UserName.Contains(name))
-                .Take(5)
+                .Take(10)
                 .ToListAsync(token))
                 .Select(x => new
                 {

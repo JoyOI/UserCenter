@@ -109,7 +109,7 @@
                 var self = this;
                 self.signalr.on('onMessageReceived', (id) => {
                     self.loadContacts();
-                    if (self.target.id == id) {
+                    if (self.target && self.target.id == id) {
                         self.loadMessages(id);
                     }
                 });
