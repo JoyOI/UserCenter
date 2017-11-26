@@ -64,7 +64,10 @@ namespace JoyOI.UserCenter.Controllers
                 });
 
             await DB.SaveChangesAsync(token);
-            await hub.Clients.Group(receiverId.ToString()).InvokeAsync("onMessageReceived", User.Current.Id);
+
+            var user = await DB.Users.SingleAsync(x => x.Id == receiverId, token);
+
+            await hub.Clients.Group(user.UserName).InvokeAsync("onMessageReceived", User.Current.Id.ToString());
             return Content("ok");
         }
 
@@ -128,7 +131,7 @@ namespace JoyOI.UserCenter.Controllers
             var messages = await DB.Messages
                 .Include(x => x.Sender)
                 .Include(x => x.Receiver)
-                .Where(x => x.ReceiverId == User.Current.Id || x.SenderId == User.Current.Id)
+                .Where(x => x.ReceiverId == User.Current.Id && x.SenderId == userId || x.SenderId == User.Current.Id && x.ReceiverId == userId)
                 .OrderByDescending(x => x.ReceiveTime)
                 .Skip(page * 50)
                 .Take(50)
@@ -138,8 +141,8 @@ namespace JoyOI.UserCenter.Controllers
             var targetIsRoot = await User.Manager.IsInAnyRolesAsync(target, "Root");
             var me = User.Current;
             var iAmRoot = await User.Manager.IsInAnyRolesAsync(me, "Root");
-
-            var ret = messages.Select(x => new
+            
+            var ret = messages.OrderBy(x => x.SendTime).Select(x => new
             {
                 sender = new
                 {
@@ -169,7 +172,7 @@ namespace JoyOI.UserCenter.Controllers
                 .Where(x => x.ReceiverId == User.Current.Id && x.SenderId == userId)
                 .SetField(x => x.IsRead).WithValue(true)
                 .Update();
-
+            
             return Json(ret);
         }
 

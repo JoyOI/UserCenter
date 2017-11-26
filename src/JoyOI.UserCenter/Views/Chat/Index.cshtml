@@ -109,7 +109,7 @@
                 var self = this;
                 self.signalr.on('onMessageReceived', (id) => {
                     self.loadContacts();
-                    if (target.id == id) {
+                    if (self.target.id == id) {
                         self.loadMessages(id);
                     }
                 });
@@ -132,7 +132,7 @@
                 searchKeyUp: function () { 
                     var self = this;
                     var txt = $('.search-box').val();
-                    $.getJSON('/chat/findcontact', { name: txt }, function (data) { 
+                    $.getJSON('/chat/findcontact', { name: txt, rand: new Date().getTime() }, function (data) { 
                         self.searchResult = data;
                     });
                 },
@@ -142,15 +142,20 @@
                     $('.message-box').parents('.tab').height(50 + (line - 1) * 26);
                 },
                 chatTo: function (id, username) {
+                    var self = this;
                     this.target = { id: id, username: username };
                     this.current = 'chat';
                     this.loadMessages(id);
+                    var history = self.histories.filter(x => x.id == id);
+                    for (var i = 0; i < history.length; i++) {
+                        history[i].unread = 0;
+                    }
                 },
                 loadMessages: function (id) {
                     var self = this;
                     if (self.target && self.target.id !== id)
                         self.chat = [];
-                    $.getJSON('/chat/getmessages', { userId: id }, function (data) { 
+                    $.getJSON('/chat/getmessages', { userId: id, rand: new Date().getTime() }, function (data) { 
                         self.chat = data;
                         $('.chat-container').scrollTop(9999);
                         setTimeout(function () { $('.chat-container').scrollTop(9999); }, 500);
@@ -158,7 +163,7 @@
                 },
                 loadContacts: function () {
                     var self = this;
-                    $.getJSON('/chat/getcontacts', {}, function (data) {
+                    $.getJSON('/chat/getcontacts', { rand: new Date().getTime() }, function (data) {
                         self.histories = data;
                     });
                 },
@@ -173,6 +178,7 @@
                         $('.message-box').val('');
                         self.msgBoxKeyUp();
                         self.loadMessages(id);
+                        self.loadContacts();
                     });
                 },
                 parseDate: function (time) {
