@@ -253,7 +253,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -731,7 +731,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -770,7 +770,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -791,7 +791,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -812,7 +812,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -834,7 +834,7 @@ namespace JoyOI.UserCenter.Controllers
             }
             else if (Application.Type != ApplicationType.Official)
             {
-                return ApiResult(SR["Permission denied."], 404);
+                return ApiResult(SR["Permission denied."], 401);
             }
             else if (Application.Secret != secret)
             {
@@ -851,6 +851,39 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     return ApiResult(false);
                 }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendSystemMessageToUser(Guid id, string secret, Guid openId, string content, CancellationToken token)
+        {
+            if (Application == null)
+            {
+                return ApiResult(SR["Application is not found."], 404);
+            }
+            else if (Application.Type != ApplicationType.Official)
+            {
+                return ApiResult(SR["Permission denied."], 401);
+            }
+            else if (Application.Secret != secret)
+            {
+                return ApiResult(SR["Application secret is invalid."]);
+            }
+            else
+            {
+                var open = await DB.OpenIds
+                    .Where(x => x.Id == openId)
+                    .SingleOrDefaultAsync(token);
+
+                DB.Messages.Add(new Message
+                {
+                    SendTime = DateTime.Now,
+                    ReceiverId = open.UserId,
+                    Content = content
+                });
+                await DB.SaveChangesAsync(token);
+
+                return ApiResult("succeeded", 200);
             }
         }
     }

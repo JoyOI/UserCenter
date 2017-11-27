@@ -270,7 +270,7 @@ namespace JoyOI.UserCenter.SDK
             }
         }
 
-        public async Task<bool> HasUnreadMessage(Guid openId)
+        public async Task<bool> HasUnreadMessageAsync(Guid openId)
         {
             using (var client = new HttpClient() { BaseAddress = _baseUri })
             {
@@ -296,6 +296,20 @@ namespace JoyOI.UserCenter.SDK
                 return $"{ baseUrl }/{ appid }/{ openId }/{ aes.Encrypt(secret) }";
             else
                 return $"{ baseUrl }/{ appid }/{ openId }/{ aes.Encrypt(secret) }#{ toUser }";
+        }
+
+        public async Task<bool> SendSystemMessageToUserAsync(Guid openId, string content)
+        {
+            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            {
+                var result = await client.PostAsync("/SendSystemMessageToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    { "secret", _secret },
+                    { "openId", openId.ToString() },
+                    { "content", content }
+                }));
+                return result.IsSuccessStatusCode;
+            }
         }
     }
 }
