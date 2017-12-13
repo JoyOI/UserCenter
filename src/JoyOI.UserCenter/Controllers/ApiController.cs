@@ -6,12 +6,11 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.AspNetCore.Localization;
-using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using JoyOI.UserCenter.Models;
 
@@ -22,6 +21,7 @@ namespace JoyOI.UserCenter.Controllers
         private static Random _random = new Random();
         private static string _randomStringDictionary = "qwertyuiopasdfghjklzxcvbnm1234567890";
         private static MD5 _md5 = MD5.Create();
+        private static Regex _phoneRegex = new Regex("^[+]{0,1}[0-9]{4,16}$");
 
         private IActionResult ApiResult(object data) => Json(new ApiBody { code = 200, msg = "ok", data = data });
         private IActionResult ApiResult(string msg, int statusCode = 400)
@@ -708,6 +708,10 @@ namespace JoyOI.UserCenter.Controllers
             else if (Application.Secret != secret)
             {
                 return ApiResult(SR["Application secret is invalid."]);
+            }
+            else if (!_phoneRegex.IsMatch(phone))
+            {
+                return ApiResult(SR["Phone number is invalid."]);
             }
             else
             {

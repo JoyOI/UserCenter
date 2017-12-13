@@ -14,7 +14,8 @@ namespace JoyOI.UserCenter.Controllers
         {
             if (User.Current == null)
                 return RedirectToAction("Login", "Account");
-            return View();
+            else
+                return RedirectToAction("Index", "Account");
         }
     }
 }

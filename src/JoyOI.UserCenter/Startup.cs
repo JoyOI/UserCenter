@@ -80,6 +80,8 @@ namespace JoyOI.UserCenter
                 .AddDefaultTokenProviders();
 
             services.AddContextAccessor();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             services.AddPomeloLocalization(x =>
             {
@@ -96,6 +98,7 @@ namespace JoyOI.UserCenter
             loggerFactory.AddConsole();
             app.UseFrontendLocalizer();
             app.UseStaticFiles();
+            app.UseSession();
             app.UseDeveloperExceptionPage();
             app.UseWebSockets();
             app.UseSignalR(x => x.MapHub<MessageHub>("hubs"));

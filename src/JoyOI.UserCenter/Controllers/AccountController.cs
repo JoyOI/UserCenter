@@ -757,5 +757,114 @@ namespace JoyOI.UserCenter.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Forgot()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult Forgot(string username, [FromServices] AesCrypto Aes)
+        {
+            var user = DB.Users.SingleOrDefault(x => x.UserName == username);
+            if (user == null)
+            {
+                return Prompt(x => 
+                {
+                    x.Title = SR["User not found"];
+                    x.Details = SR["The specified user is not found."];
+                    x.StatusCode = 404;
+                });
+            }
+            if (string.IsNullOrEmpty(user.PhoneNumber))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Password Reset Failed"];
+                    x.Details = SR["You did not bind a phone number, please contact with administrator"];
+                    x.StatusCode = 400;
+                });
+            }
+
+            var cookie = Aes.Encrypt(JsonConvert.SerializeObject(new ForgotPasswordCookie
+            {
+                Code = _random.Next(100000, 999999),
+                PhoneNumber = user.PhoneNumber,
+                Username = user.UserName
+            }));
+
+            HttpContext.Response.Cookies.Append("forgot", cookie);
+
+            return View("Forgot2", user);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Forgot2([FromServices] AesCrypto Aes, string password, string confirm, int code)
+        {
+            if (password != confirm)
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Reset Password Failed"];
+                    x.Details = SR["The password and confirm are not equal"];
+                    x.StatusCode = 400;
+                });
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Reset Password Failed"];
+                    x.Details = SR["Missing the password value"];
+                    x.StatusCode = 400;
+                });
+            }
+            var cookie = JsonConvert.DeserializeObject<ForgotPasswordCookie>(Aes.Decrypt(HttpContext.Request.Cookies["forgot"].ToString()));
+            if (cookie.Code == code)
+            {
+                var user = DB.Users.Single(x => x.UserName == cookie.Username);
+                var token = await User.Manager.GeneratePasswordResetTokenAsync(user);
+                await User.Manager.ResetPasswordAsync(user, token, password);
+
+                HttpContext.Response.Cookies.Delete("forgot");
+
+                return Prompt(x =>
+                {
+                    x.Title = SR["Password Reseted"];
+                    x.Details = SR["You could login with your new password now."];
+                    x.HideBack = true;
+                });
+            }
+            else
+            {
+                return Prompt(x =>
+                {
+                    x.Title = SR["Reset Password Failed"];
+                    x.Details = SR["The verify code is incorrect"];
+                    x.StatusCode = 400;
+                });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendForgotCode([FromServices] AesCrypto Aes)
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("forgot_code")) || DateTime.UtcNow.ToTimeStamp() > Convert.ToInt64(HttpContext.Session.GetString("forgot_code")))
+            {
+                HttpContext.Session.SetString("forgot_code", DateTime.UtcNow.AddMinutes(1).ToTimeStamp().ToString());
+                var cookie = JsonConvert.DeserializeObject<ForgotPasswordCookie>(Aes.Decrypt(HttpContext.Request.Cookies["forgot"].ToString()));
+                await Lib.SMS.SendSmsAsync(Configuration["SMS:CorpId"], Configuration["SMS:Pwd"], cookie.PhoneNumber, SR["You are reseting your Joy OI password, the verify code is: {0}", cookie.Code]);
+                return Content(SR["An SMS with the verify code has been sent to your phone"]);
+            }
+            else
+            {
+                return Content(SR["You operation is so frequently, please wait a moment and retry."]);
+            }
+        }
     }
 }

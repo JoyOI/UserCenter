@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = SR["Forgot Password"];
+}
+
+@section Navigator {
+    <div class="columns">
+        <div class="location-path">
+            / <a href="/">JoyOI</a> /
+        </div>
+        <h1 class="location-current" data-emoji-enabled="">@SR["Forgot Password"]</h1>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8 col-sm-12 col-md-offset-2">
+        <div class="card card-single card-error">
+            <div class="error-block-inner">
+                <h3>@SR["Find your account"]</h3>
+                <form method="post" asp-action="Forgot" asp-controller="Account">
+                    <p>
+                        <span class="texthold">@SR["Username"]</span>
+                        <input type="text" class="textbox w-3" name="username" />
+                    </p>
+                    <input type="submit" value="@SR["Next"]" class="btn btn-default ripple home-link" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+﻿@model User
+@{
+    ViewBag.Title = SR["Forgot Password"];
+}
+
+@section Navigator {
+    <div class="columns">
+        <div class="location-path">
+            / <a href="/">JoyOI</a> /
+        </div>
+        <h1 class="location-current" data-emoji-enabled="">@SR["Forgot Password"]</h1>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8 col-sm-12 col-md-offset-2">
+        <div class="card card-single card-error">
+            <div class="error-block-inner">
+                <h3>@SR["Find your account"]</h3>
+                <form method="post" asp-action="Forgot2" asp-controller="Account">
+                    <p>
+                        <span class="texthold">@SR["Username"]</span>
+                        <input type="text" class="textbox w-3" value="@Model.UserName" disabled />
+                    </p>
+                    <p>
+                        <span class="texthold">@SR["Phone Number"]</span>
+                        <input type="text" class="textbox w-3" value="@(Model.PhoneNumber[0] + "********" + Model.PhoneNumber[Model.PhoneNumber.Length - 1])" disabled />
+                    </p>
+                    <p>
+                        <span class="texthold">@SR["Verify Code"]</span>
+                        <input type="text" class="textbox w-3" name="code" />
+                    </p>
+                    <p>
+                        <span class="texthold">@SR["New Password"]</span>
+                        <input type="password" class="textbox w-3" name="password" />
+                    </p>
+                    <p>
+                        <span class="texthold">@SR["Confirm Password"]</span>
+                        <input type="password" class="textbox w-3" name="confirm" />
+                    </p>
+                    <input type="button" value="@SR["Send Verify Code"]" id="btnSendCode" class="btn btn-success ripple home-link" />
+                    <input type="submit" value="@SR["Reset Password"]" class="btn btn-primary ripple home-link" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#btnSendCode').click(function () {
+        popResult('@SR["Sending verify code..."]');
+        $.post('/account/sendforgotcode', {}, function (data) { 
+            popResult(data);
+        });
+    });
+</script>
