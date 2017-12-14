@@ -767,15 +767,24 @@ namespace JoyOI.UserCenter.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Forgot(string username, [FromServices] AesCrypto Aes)
+        public IActionResult Forgot(string value, int mode, [FromServices] AesCrypto Aes)
         {
-            var user = DB.Users.SingleOrDefault(x => x.UserName == username);
+            User user;
+
+            if (mode == 0)
+                user = DB.Users.SingleOrDefault(x => x.UserName == value);
+            else
+                user = DB.Users.SingleOrDefault(x => x.PhoneNumber == value && x.PhoneNumberConfirmed);
+
             if (user == null)
             {
                 return Prompt(x => 
                 {
                     x.Title = SR["User not found"];
                     x.Details = SR["The specified user is not found."];
+                    x.HideBack = true;
+                    x.RedirectText = SR["Back"];
+                    x.RedirectUrl = Url.Action("Forgot", "Account");
                     x.StatusCode = 404;
                 });
             }
@@ -785,6 +794,9 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Password Reset Failed"];
                     x.Details = SR["You did not bind a phone number, please contact with administrator"];
+                    x.HideBack = true;
+                    x.RedirectText = SR["Back"];
+                    x.RedirectUrl = Url.Action("Forgot", "Account");
                     x.StatusCode = 400;
                 });
             }
@@ -811,6 +823,9 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Reset Password Failed"];
                     x.Details = SR["The password and confirm are not equal"];
+                    x.HideBack = true;
+                    x.RedirectText = SR["Back"];
+                    x.RedirectUrl = Url.Action("Forgot", "Account");
                     x.StatusCode = 400;
                 });
             }
@@ -820,6 +835,9 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Reset Password Failed"];
                     x.Details = SR["Missing the password value"];
+                    x.HideBack = true;
+                    x.RedirectText = SR["Back"];
+                    x.RedirectUrl = Url.Action("Forgot", "Account");
                     x.StatusCode = 400;
                 });
             }
@@ -845,6 +863,9 @@ namespace JoyOI.UserCenter.Controllers
                 {
                     x.Title = SR["Reset Password Failed"];
                     x.Details = SR["The verify code is incorrect"];
+                    x.HideBack = true;
+                    x.RedirectText = SR["Back"];
+                    x.RedirectUrl = Url.Action("Forgot", "Account");
                     x.StatusCode = 400;
                 });
             }

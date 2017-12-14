@@ -123,5 +123,8 @@
   "Missing the password value": "缺少密码",
   "The password and confirm are not equal": "两次密码输入不一致",
   "Password Reseted": "密码重置成功",
-  "You did not bind a phone number, please contact with administrator": "您没有绑定手机号码，请联系管理员进行重置密码操作"
+  "You did not bind a phone number, please contact with administrator": "您没有绑定手机号码，请联系管理员进行重置密码操作",
+  "Find by username": "根据用户名",
+  "Find by phone number": "根据手机号码",
+  "Back": "返回"
 }

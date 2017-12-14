@@ -18,8 +18,18 @@
                 <h3>@SR["Find your account"]</h3>
                 <form method="post" asp-action="Forgot" asp-controller="Account">
                     <p>
-                        <span class="texthold">@SR["Username"]</span>
-                        <input type="text" class="textbox w-3" name="username" />
+                        <span class="texthold" id="tipValue">@SR["Username"]</span>
+                        <input type="text" class="textbox w-3" name="value" />
+                    </p>
+                    <p>
+                        <label>
+                            <input name="mode" value="0" type="radio" checked />
+                            @SR["Find by username"]
+                        </label>
+                        <label style="margin-left:15px;">
+                            <input name="mode" value="1" type="radio" />
+                            @SR["Find by phone number"]
+                        </label>
                     </p>
                     <input type="submit" value="@SR["Next"]" class="btn btn-default ripple home-link" />
                 </form>
@@ -27,3 +37,14 @@
         </div>
     </div>
 </div>
+<script>
+    var username = '@SR["Username"]';
+    var phoneNumber = '@SR["Phone Number"]';
+    $('input[type="radio"]').change(function () {
+        if ($('input[type="radio"]:checked').val() == 0) {
+            $('#tipValue').html(username);
+        } else {
+            $('#tipValue').html(phoneNumber);
+        }
+    });
+</script>
