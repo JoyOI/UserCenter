@@ -26,7 +26,7 @@ namespace JoyOI.UserCenter.Controllers
         private static Random _random = new Random();
         private static Regex emailRegex = new Regex("^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$");
         private static Regex phoneRegex = new Regex("^[+0-9]*$");
-        private const string usernameRegexString = "[\u3040-\u309F\u30A0-\u30FF\u4e00-\u9fa5A-Za-z0-9_-]{4,32}";
+        private const string usernameRegexString = "^[\u3040-\u309F\u30A0-\u30FF\u4e00-\u9fa5A-Za-z0-9_-]{4,32}$";
         private static Regex usernameRegex = new Regex("^(" + usernameRegexString + ")$");
         private static MD5 _md5 = MD5.Create();
 

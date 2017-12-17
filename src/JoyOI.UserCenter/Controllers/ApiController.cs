@@ -747,6 +747,12 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
+                var regex = new Regex("^[\u3040-\u309F\u30A0-\u30FF\u4e00-\u9fa5A-Za-z0-9_-]{4,32}$");
+                if (!regex.IsMatch(username))
+                {
+                    return ApiResult(SR["The username is invalid"]);
+                }
+
                 var user = new User { UserName = username, Email = email, PhoneNumber = phone, PhoneNumberConfirmed = true, AvatarData = email, AvatarSource = AvatarSource.GravatarPolling };
                 await User.Manager.CreateAsync(user, password);
 
