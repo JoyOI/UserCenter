@@ -7,11 +7,12 @@ using Newtonsoft.Json;
 
 namespace JoyOI.UserCenter.SDK
 {
-    public class JoyOIUC
+    public class JoyOIUC : IDisposable
     {
         private Guid _appId;
-        private Uri _baseUri;
+        private HttpClient _client;
         private string _secret;
+        private string _baseUrl;
         private IConfiguration _configuration;
 
         public JoyOIUC(IConfiguration configuration)
@@ -19,7 +20,8 @@ namespace JoyOI.UserCenter.SDK
             _configuration = configuration;
             _appId = Guid.Parse(configuration["JoyOI:AppId"]);
             _secret = configuration["JoyOI:Secret"];
-            _baseUri = new Uri(configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.cn");
+            _baseUrl = configuration["JoyOI:UcUrl"] ?? "http://api.uc.joyoi.cn";
+            _client = new HttpClient() { BaseAddress = new Uri(_baseUrl) };
         }
 
         public async Task<ResponseBody<long>> GetExtensionCoinAsync(
@@ -27,15 +29,14 @@ namespace JoyOI.UserCenter.SDK
             string accessToken,
             string field)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/GetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/GetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken },
                     { "field", field }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<long>>(ret);
             }
@@ -47,16 +48,15 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/SetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/SetExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken },
                     { "field", field },
                     { "value", value.ToString() }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<long>>(ret);
             }
@@ -68,16 +68,15 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/IncreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/IncreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken },
                     { "field", field },
                     { "value", value.ToString() }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<long>>(ret);
             }
@@ -89,16 +88,15 @@ namespace JoyOI.UserCenter.SDK
             string field,
             long value)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/DecreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/DecreaseExtensionCoin/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken },
                     { "field", field },
                     { "value", value.ToString() }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<long>>(ret);
             }
@@ -106,14 +104,13 @@ namespace JoyOI.UserCenter.SDK
 
         public async Task<ResponseBody<TrustedAuthorizeResult>> TrustedAuthorizeAsync(string username, string password)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/TrustedAuthorize/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/TrustedAuthorize/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "username", username },
                     { "password", password }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<TrustedAuthorizeResult>>(ret);
             }
@@ -123,14 +120,13 @@ namespace JoyOI.UserCenter.SDK
             Guid openId,
             string accessToken)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/GetUserProfile/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/GetUserProfile/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<UserProfileResult>>(ret);
             }
@@ -138,14 +134,13 @@ namespace JoyOI.UserCenter.SDK
 
         public string GetAvatarUrl(Guid openId, int size = 230)
         {
-            return $"{ _baseUri.ToString() }getavatar/{ openId }?size={ size }";
+            return $"{ _baseUrl }getavatar/{ openId }?size={ size }";
         }
 
         public async Task<byte[]> GetAvatarBytesAsync(Guid openId, int size = 230)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
+            using (var result = await _client.GetAsync($"/getavatar/{ openId }?size={ size }"))
             {
-                var result = await client.GetAsync($"/getavatar/{ openId }?size={ size }");
                 return await result.Content.ReadAsByteArrayAsync();
             }
         }
@@ -154,14 +149,13 @@ namespace JoyOI.UserCenter.SDK
             Guid openId,
             string accessToken)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/GetUsername/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/GetUsername/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<string>>(ret);
             }
@@ -172,16 +166,14 @@ namespace JoyOI.UserCenter.SDK
             string accessToken,
             string content)
         {
-
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/SendSmsToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openid", openId.ToString() },
                     { "accessToken", accessToken },
                     { "content", content }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return result.IsSuccessStatusCode;
             }
@@ -191,14 +183,13 @@ namespace JoyOI.UserCenter.SDK
             string phone,
             string content)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/SendSms/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/SendSms/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "phone", phone },
                     { "content", content }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return result.IsSuccessStatusCode;
             }
@@ -210,16 +201,15 @@ namespace JoyOI.UserCenter.SDK
             string phone,
             string email)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/InsertUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/InsertUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "username", username },
                     { "password", password },
                     { "email", email },
                     { "phone", phone }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<Guid>>(ret).data;
             }
@@ -228,13 +218,12 @@ namespace JoyOI.UserCenter.SDK
         public async Task<bool> IsPhoneExistAsync(
             string phone)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/IsPhoneExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/IsPhoneExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "phone", phone }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
@@ -243,13 +232,12 @@ namespace JoyOI.UserCenter.SDK
         public async Task<bool> IsEmailExistAsync(
             string email)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/IsEmailExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/IsEmailExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "email", email }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
@@ -258,13 +246,12 @@ namespace JoyOI.UserCenter.SDK
         public async Task<bool> IsUsernameExistAsync(
             string username)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/IsUsernameExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/IsUsernameExist/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "username", username }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
@@ -272,13 +259,12 @@ namespace JoyOI.UserCenter.SDK
 
         public async Task<bool> HasUnreadMessageAsync(Guid openId)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/HasUnreadMessage/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/HasUnreadMessage/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openId", openId.ToString() }
-                }));
+                })))
+            {
                 var ret = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<ResponseBody<bool>>(ret).data;
             }
@@ -300,16 +286,20 @@ namespace JoyOI.UserCenter.SDK
 
         public async Task<bool> SendSystemMessageToUserAsync(Guid openId, string content)
         {
-            using (var client = new HttpClient() { BaseAddress = _baseUri })
-            {
-                var result = await client.PostAsync("/SendSystemMessageToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
+            using (var result = await _client.PostAsync("/SendSystemMessageToUser/" + _appId, new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
                     { "secret", _secret },
                     { "openId", openId.ToString() },
                     { "content", content }
-                }));
+                })))
+            {
                 return result.IsSuccessStatusCode;
             }
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }
