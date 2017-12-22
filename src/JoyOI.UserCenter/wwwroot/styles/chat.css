@@ -83,6 +83,9 @@ body {
     font-size: 10px;
     line-height: 22px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 22px;
 }
 
 .contact-time, .contact-count {
