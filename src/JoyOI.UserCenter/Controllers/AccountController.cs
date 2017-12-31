@@ -240,8 +240,12 @@ namespace JoyOI.UserCenter.Controllers
         }
 
         [HttpGet("/Register")]
-        public IActionResult Register()
+        public IActionResult Register(string from)
         {
+            if (!string.IsNullOrWhiteSpace(from))
+            {
+                Response.Cookies.Append("from", from);
+            }
             return View();
         }
 
@@ -458,12 +462,19 @@ namespace JoyOI.UserCenter.Controllers
             }
             else
             {
-                return _Prompt(x =>
+                if (!string.IsNullOrEmpty(Request.Cookies["from"]))
                 {
-                    x.Title = SR["Register Succeeded"];
-                    x.Details = SR["{0}, welcome to JoyOI!", username];
-                    x.HideBack = true;
-                });
+                    return Redirect(Request.Cookies["from"]);
+                }
+                else
+                {
+                    return _Prompt(x =>
+                    {
+                        x.Title = SR["Register Succeeded"];
+                        x.Details = SR["{0}, welcome to JoyOI!", username];
+                        x.HideBack = true;
+                    });
+                }
             }
         }
 

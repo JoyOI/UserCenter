@@ -132,7 +132,7 @@ namespace JoyOI.UserCenter.Controllers
                 .Include(x => x.Sender)
                 .Include(x => x.Receiver)
                 .Where(x => x.ReceiverId == User.Current.Id && x.SenderId == userId || x.SenderId == User.Current.Id && x.ReceiverId == userId)
-                .OrderByDescending(x => x.ReceiveTime)
+                .OrderByDescending(x => x.SendTime)
                 .Skip(page * 50)
                 .Take(50)
                 .ToListAsync(token);
