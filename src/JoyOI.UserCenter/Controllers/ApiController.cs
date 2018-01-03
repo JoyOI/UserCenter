@@ -419,10 +419,10 @@ namespace JoyOI.UserCenter.Controllers
                     _openId.User.Extensions.Object[field] = value;
                     _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
-                    var result = await DB.Users
+                    var result = DB.Users
                         .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
-                        .UpdateAsync(token);
+                        .Update();
 
                     if (result == 0)
                     {
@@ -431,7 +431,7 @@ namespace JoyOI.UserCenter.Controllers
 
                     DB.Users.Attach(_openId.User);
 
-                    return ApiResult(null);
+                    return ApiResult(value);
                 }
             }
         }
@@ -469,19 +469,22 @@ namespace JoyOI.UserCenter.Controllers
                     .Include(x => x.User)
                     .SingleAsync(x => x.Id == openId, token);
 
-                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
+                if ((_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime) && Application.Type != ApplicationType.Official)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
+                    if (!_openId.User.Extensions.Object.ContainsKey(field)) {
+                        _openId.User.Extensions.Object.Add(field, value);
+                    }
                     _openId.User.Extensions.Object[field] = _openId.User.Extensions.Object[field] + value;
                     _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
-                    var result = await DB.Users
+                    var result = DB.Users
                         .Where(x => x.Id == _openId.UserId && x.ConcurrencyStamp == _openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(_openId.User.Extensions)
-                        .UpdateAsync(token);
+                        .Update();
 
                     if (result == 0)
                     {
@@ -490,7 +493,7 @@ namespace JoyOI.UserCenter.Controllers
 
                     DB.Users.Attach(_openId.User);
 
-                    return ApiResult(null);
+                    return ApiResult(_openId.User.Extensions.Object[field]);
                 }
             }
         }
@@ -534,13 +537,17 @@ namespace JoyOI.UserCenter.Controllers
                 }
                 else
                 {
+                    if (!openId.User.Extensions.Object.ContainsKey(field))
+                    {
+                        openId.User.Extensions.Object.Add(field, value);
+                    }
                     openId.User.Extensions.Object[field] = openId.User.Extensions.Object[field] - value;
                     openId.User.Extensions = JsonConvert.SerializeObject(openId.User.Extensions.Object);
 
-                    var result = await DB.Users
+                    var result = DB.Users
                         .Where(x => x.Id == openId.UserId && x.ConcurrencyStamp == openId.User.ConcurrencyStamp)
                         .SetField(x => x.Extensions).WithValue(openId.User.Extensions)
-                        .UpdateAsync(token);
+                        .Update();
 
                     if (result == 0)
                     {
@@ -549,7 +556,7 @@ namespace JoyOI.UserCenter.Controllers
 
                     DB.Users.Attach(openId.User);
 
-                    return ApiResult(null);
+                    return ApiResult(openId.User.Extensions.Object[field]);
                 }
             }
         }
