@@ -423,7 +423,7 @@ namespace JoyOI.UserCenter.Controllers
                 }
                 else
                 {
-                    _openId.User.Extensions.Object[field] = value;
+                    _openId.User.Extensions.Object[field.ToLower()] = value;
                     _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
                     var result = DB.Users
@@ -482,10 +482,10 @@ namespace JoyOI.UserCenter.Controllers
                 }
                 else
                 {
-                    if (!_openId.User.Extensions.Object.ContainsKey(field)) {
-                        _openId.User.Extensions.Object.Add(field, value);
+                    if (!_openId.User.Extensions.Object.ContainsKey(field.ToLower())) {
+                        _openId.User.Extensions.Object.Add(field.ToLower(), value);
                     }
-                    _openId.User.Extensions.Object[field] = _openId.User.Extensions.Object[field] + value;
+                    _openId.User.Extensions.Object[field.ToLower()] = _openId.User.Extensions.Object[field.ToLower()] + value;
                     _openId.User.Extensions = JsonConvert.SerializeObject(_openId.User.Extensions.Object);
 
                     var result = DB.Users
@@ -500,7 +500,7 @@ namespace JoyOI.UserCenter.Controllers
 
                     DB.Users.Attach(_openId.User);
 
-                    return ApiResult(_openId.User.Extensions.Object[field]);
+                    return ApiResult(_openId.User.Extensions.Object[field.ToLower()]);
                 }
             }
         }
@@ -538,17 +538,17 @@ namespace JoyOI.UserCenter.Controllers
                     .Include(x => x.User)
                     .SingleAsync(x => x.Id == OpenId, token);
 
-                if (openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime)
+                if ((openId.AccessToken != accessToken || DateTime.Now > openId.ExpireTime) && Application.Type != ApplicationType.Official)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
-                    if (!openId.User.Extensions.Object.ContainsKey(field))
+                    if (!openId.User.Extensions.Object.ContainsKey(field.ToLower()))
                     {
-                        openId.User.Extensions.Object.Add(field, value);
+                        openId.User.Extensions.Object.Add(field.ToLower(), -value);
                     }
-                    openId.User.Extensions.Object[field] = openId.User.Extensions.Object[field] - value;
+                    openId.User.Extensions.Object[field.ToLower()] = openId.User.Extensions.Object[field.ToLower()] - value;
                     openId.User.Extensions = JsonConvert.SerializeObject(openId.User.Extensions.Object);
 
                     var result = DB.Users
@@ -563,7 +563,7 @@ namespace JoyOI.UserCenter.Controllers
 
                     DB.Users.Attach(openId.User);
 
-                    return ApiResult(openId.User.Extensions.Object[field]);
+                    return ApiResult(openId.User.Extensions.Object[field.ToLower()]);
                 }
             }
         }
