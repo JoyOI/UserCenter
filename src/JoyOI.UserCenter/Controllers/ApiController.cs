@@ -367,13 +367,20 @@ namespace JoyOI.UserCenter.Controllers
                     .Include(x => x.User)
                     .SingleAsync(x => x.Id == openId, token);
 
-                if (_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime)
+                if ((_openId.AccessToken != accessToken || DateTime.Now > _openId.ExpireTime) && Application.Type != ApplicationType.Official)
                 {
                     return ApiResult(SR["Your access token is invalid."], 403);
                 }
                 else
                 {
-                    return ApiResult(_openId.User.Extensions.Object[field.ToLower()]);
+                    if (_openId.User.Extensions.Object.ContainsKey(field.ToLower()))
+                    {
+                        return ApiResult(_openId.User.Extensions.Object[field.ToLower()]);
+                    }
+                    else
+                    {
+                        return ApiResult(0);
+                    }
                 }
             }
         }
