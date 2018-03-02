@@ -115,3 +115,33 @@
     display:inline;
     float: right;
 }
+
+.inline-table {
+    margin: -30px -20px;
+    width: calc(100% + 40px);
+}
+
+.inline-table tr {
+    border: 1px solid #ddd;
+}
+
+    .inline-table thead {
+        color: #888 !important;
+        font-size: 12px;
+        line-height: 20px;
+    }
+
+    .inline-table tbody {
+        color: #555 !important;
+        font-size: 12px;
+        line-height: 20px;
+    }
+
+    .inline-table tbody tr:nth-child(odd) {
+        background: #f4f4f4;
+    }
+
+    .inline-table td, .inline-table th {
+        padding: 5px 12px;
+        font-weight: normal;
+    }
