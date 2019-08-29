@@ -79,7 +79,7 @@ namespace JoyOI.UserCenter.Controllers
         public async Task<IActionResult> Login(string username, string password, CancellationToken token)
         {
             var users = DB.Users
-                .Where(x => x.UserName == username || x.Email == username)
+                .Where(x => x.UserName == username || x.Email == username || x.PhoneNumber == username)
                 .OrderByDescending(x => x.UserName == username);
 
             if (users.Count() == 0)
